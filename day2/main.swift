@@ -61,5 +61,6 @@ do {
     }
 
     print("\(position * depth)")
+    assert(position * depth == 2138382217)
 }
 
