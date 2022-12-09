@@ -7,9 +7,10 @@
 import Foundation
 
 enum Input {
-    static var lines: [String] {
+    static func lines(file: String = #file) -> [String] {
         let processName = ProcessInfo().processName
-        let base = URL(fileURLWithPath: #file).deletingLastPathComponent().deletingLastPathComponent()
+        let source = URL(fileURLWithPath: file)
+        let base = source.deletingLastPathComponent().deletingLastPathComponent()
         let inputURL = base.appendingPathComponent(processName).appendingPathComponent("input.txt")
 
         let inputData = try! Data(contentsOf: inputURL, options: [])

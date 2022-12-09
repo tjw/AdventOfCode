@@ -7,7 +7,7 @@
 
 import Foundation
 
-let lines = Input.lines
+let lines = Input.lines()
 
 do {
     var deeper = 0

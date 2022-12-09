@@ -17,7 +17,7 @@ do {
     var depth = 0
     var position = 0
 
-    for line in Input.lines {
+    for line in Input.lines() {
         let components = line.split(separator: " ")
         let direction = Direction(rawValue: String(components[0]))!
         let offset = Int(components[1])!
@@ -43,7 +43,7 @@ do {
     var position = 0
     var aim = 0
 
-    for line in Input.lines {
+    for line in Input.lines() {
         let components = line.split(separator: " ")
         let direction = Direction(rawValue: String(components[0]))!
         let offset = Int(components[1])!

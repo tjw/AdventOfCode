@@ -93,7 +93,8 @@
 			children = (
 				34072D902932F6C80030EB66 /* Input.swift */,
 			);
-			path = Utilities;
+			name = Utilities;
+			path = ../Utilities;
 			sourceTree = "<group>";
 		};
 		341C5805293303810049BEE8 /* day2 */ = {
