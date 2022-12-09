@@ -14,6 +14,6 @@ enum Input {
         let inputURL = base.appendingPathComponent(processName).appendingPathComponent("input.txt")
 
         let inputData = try! Data(contentsOf: inputURL, options: [])
-        return String(data: inputData, encoding: .utf8)!.split(separator: "\n").map { String($0) }
+        return String(data: inputData, encoding: .utf8)!.split(separator: "\n", omittingEmptySubsequences: false).map { String($0) }
     }
 }
