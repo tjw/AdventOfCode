@@ -34,8 +34,6 @@ struct Rucksack {
         let first = line[line.startIndex..<middle]
         let second = line[middle..<line.endIndex]
 
-        print("first \(first), second \(second)")
-
         compartment0 = first.map { $0.priority }
         compartment1 = second.map { $0.priority }
     }
@@ -49,8 +47,7 @@ struct Rucksack {
 
 let lines = Input.lines()
 
-let rucksacks: [Rucksack] = Input.lines().compactMap {
-    guard !$0.isEmpty else { return nil }
+let rucksacks = Input.lines().map {
     return Rucksack(line: $0)
 }
 

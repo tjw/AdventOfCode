@@ -89,8 +89,7 @@ func evaluate(moves: [Move]) -> Int {
 let lines = Input.lines()
 
 do {
-    let moves: [Move] = lines.compactMap { line in
-        guard !line.isEmpty else { return nil }
+    let moves = lines.map { line in
         let components = line.split(separator: " ")
         return Move(elf: Shape(rawValue: String(components[0])), player: Shape(rawValue: String(components[1])))
     }
@@ -102,8 +101,7 @@ do {
 }
 
 do {
-    let moves: [Move] = lines.compactMap { line in
-        guard !line.isEmpty else { return nil }
+    let moves = lines.map { line in
         let components = line.split(separator: " ")
         let elf = Shape(rawValue: String(components[0]))
         let result = Result(rawValue:  String(components[1]))

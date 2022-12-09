@@ -1,6 +1,6 @@
 import Foundation
 
-let lines = Input.lines()
+let lines = Input.lines(includeEmpty: true)
 
 class Elf {
     var items: [Int] = []
