@@ -8,15 +8,7 @@
 import Foundation
 
 /*
- In part 2, the item worry levels quickly overflow 64-bit Ints. All the 'tests' are vs primes, so the hint is to store worry levels as prime factorizations.
-
- Some of the operations are simple, for example, `$0 * 19` would find the 19 bucket and increment it. `$0 * $0` can double each bucket.
-
- Addition is a problem. For example, 5^2 + 1 = 26 = 13^2
- */
-
-/*
- Rather, let's try remembering the modulo class of the current state for each of the possible tests.
+ Remember the modulo class of the current state for each of the possible test divisors.
  */
 
 protocol ItemValueType {
@@ -46,55 +38,38 @@ extension Int {
 struct ItemModuloClasses : ItemValueType, Equatable {
     static let primes = [2, 3, 5, 7, 11, 13, 15, 17, 19, 23]
 
-    var value: Int // Debugging; keep the original value and work it it too
     var moduloResidues: [Int]
 
     init(value: Int) {
-        self.value = value
         self.moduloResidues = Self.primes.map { value % $0 }
     }
-    private init(value: Int, moduloResidues: [Int]) {
-        self.value = value
+    private init(moduloResidues: [Int]) {
         self.moduloResidues = moduloResidues
-
-        zip(moduloResidues, Self.primes).forEach { residue, prime in
-            assert(value % prime == residue)
-        }
     }
 
     static func *(left: ItemModuloClasses, a: Int) -> ItemModuloClasses {
-        let value = left.value * a
         let moduloResidues = zip(left.moduloResidues, Self.primes).map { residue, prime in
             (residue * a) % prime
         }
-        return Self(value: value, moduloResidues: moduloResidues)
+        return Self(moduloResidues: moduloResidues)
     }
     static func *(left: ItemModuloClasses, right: ItemModuloClasses) -> ItemModuloClasses {
-        // BAD: This only works here for p=2
-        // According to Fermat's Little Theorem, a^p = a mod p
-        assert(left == right)
-        //return left
-
-        let value = left.value * right.value
-
         let residues = (0..<Self.primes.count).map { idx in
             let left = left.moduloResidues[idx]
             let right = right.moduloResidues[idx]
             let prime = Self.primes[idx]
             return (left * right) % prime
         }
-        return Self(value: left.value * right.value, moduloResidues: residues)
+        return Self(moduloResidues: residues)
     }
     static func +(left: ItemModuloClasses, a: Int) -> ItemModuloClasses {
-        let value = left.value + a
         let moduloResidues = zip(left.moduloResidues, Self.primes).map { residue, prime in
             (residue + a) % prime
         }
-        return Self(value: value, moduloResidues: moduloResidues)
+        return Self(moduloResidues: moduloResidues)
     }
     static func /?(value: ItemModuloClasses, divisor: Int) -> Bool {
         let primeIndex = Self.primes.firstIndex(of: divisor)!
-        assert(value.moduloResidues[primeIndex] == value.value % divisor)
         return value.moduloResidues[primeIndex] == 0
     }
 }
@@ -170,55 +145,49 @@ func makeTestMonkeys<ItemValue: ItemValueType>() -> [Monkey<ItemValue>] {
     ]
 }
 
-//do {
-//    let monkeys: [Monkey<Int>] = makeMonkeys()
-//
-//    (0..<20).forEach { round in
-//        monkeys.forEach { monkey in
-//            for var item in monkey.items {
-//                monkey.inspections += 1
-//
-//                item = monkey.operation(item)
-//                item /= 3
-//                let target = monkeys[monkey.test(item)]
-//                assert(target !== monkey) // Maintaining the item list gets more complicated if a monkey can throw to itself
-//
-//                target.items.append(item)
-//            }
-//
-//            monkey.items = [] // All items thrown
-//        }
-//    }
-//
-//    let sorted = monkeys.sorted { $0.inspections > $1.inspections }
-//
-//    sorted.forEach { monkey in
-//        print("inspected \(monkey.inspections) items")
-//    }
-//
-//    let result = sorted[0].inspections * sorted[1].inspections
-//    print("\(result)")
-//    assert(result == 50830)
-//}
-
 do {
-    let monkeys: [Monkey<ItemModuloClasses>] = makeTestMonkeys()
+    let monkeys: [Monkey<Int>] = makeMonkeys()
 
     (0..<20).forEach { round in
-        print("## Round \(round) ##")
+        monkeys.forEach { monkey in
+            for var item in monkey.items {
+                monkey.inspections += 1
 
+                item = monkey.operation(item)
+                item /= 3
+                let target = monkeys[monkey.test(item)]
+                assert(target !== monkey) // Maintaining the item list gets more complicated if a monkey can throw to itself
+
+                target.items.append(item)
+            }
+
+            monkey.items = [] // All items thrown
+        }
+    }
+
+    let sorted = monkeys.sorted { $0.inspections > $1.inspections }
+
+    sorted.forEach { monkey in
+        print("inspected \(monkey.inspections) items")
+    }
+
+    let result = sorted[0].inspections * sorted[1].inspections
+    print("\(result)")
+    assert(result == 50830)
+}
+
+do {
+    let monkeys: [Monkey<ItemModuloClasses>] = makeMonkeys()
+
+    (0..<10000).forEach { round in
         monkeys.indices.forEach { monkeyIndex in
             let monkey = monkeys[monkeyIndex]
-            print("# Monkey \(monkeyIndex)")
 
             for old in monkey.items {
                 monkey.inspections += 1
 
                 let new = monkey.operation(old)
-                print("operation \(old) -> \(new)")
-
                 let targetIndex = monkey.test(new)
-                print("target \(targetIndex)")
 
                 let target = monkeys[targetIndex]
                 assert(target !== monkey) // Maintaining the item list gets more complicated if a monkey can throw to itself
@@ -230,17 +199,13 @@ do {
         }
     }
 
-    monkeys.forEach { monkey in
+    let sorted = monkeys.sorted { $0.inspections > $1.inspections }
+
+    sorted.forEach { monkey in
         print("inspected \(monkey.inspections) items")
     }
 
-//    let sorted = monkeys.sorted { $0.inspections > $1.inspections }
-//
-//    sorted.forEach { monkey in
-//        print("inspected \(monkey.inspections) items")
-//    }
-//
-//    let result = sorted[0].inspections * sorted[1].inspections
-//    print("\(result)")
-    // 13056475300 too low
+    let result = sorted[0].inspections * sorted[1].inspections
+    print("\(result)")
+    assert(result == 14399640002)
 }
