@@ -28,4 +28,11 @@ class Map<Element> {
         return elements[location.y][location.x]
     }
 
+    func forEach(_ operation: (Location, Element) -> Void) {
+        (0..<height).forEach { y in
+            (0..<width).forEach { x in
+                operation(Location(x: x, y: y), elements[y][x])
+            }
+        }
+    }
 }

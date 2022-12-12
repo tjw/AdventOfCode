@@ -45,7 +45,7 @@ print("map \(map)")
 print("start \(start)")
 print("destination \(destination)")
 
-func run() -> Int {
+func run(start: Location) -> Int {
     var visited = Set([start])
     var paths = [Path(start: start)]
 
@@ -82,12 +82,31 @@ func run() -> Int {
         }
     }
 
-    print("No path found")
-    return -1
+//    print("No path found")
+    return Int.max
 }
 
 do {
-    let result = run()
+    let result = run(start: start)
     print("\(result)")
     assert(result == 440)
+}
+
+do {
+    var best: Int = Int.max
+
+    map.forEach { location, height in
+        if height == 0 {
+            let result = run(start: location)
+            print("location: \(location), result \(result), best \(best)")
+
+            if best > result {
+                best = result
+                print("best: \(best)!")
+            }
+        }
+    }
+
+    print("\(best)")
+    assert(best == 439)
 }
