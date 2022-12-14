@@ -108,3 +108,27 @@ do {
     assert(inOrderSum == 5659)
 }
 
+do {
+    var sorted: [Any] = input.sorted(by: {a, b in
+        return correctlyOrdered(left: (a as! [Any])[...], right: (b as! [Any])[...]) ?? false
+    })
+
+    let key1: [Any] = [[2]]
+    let key2: [Any] = [[6]]
+
+    let key1Index = sorted.firstIndex(where: { item in
+        return correctlyOrdered(left: key1[...], right: (item as! [Any])[...]) ?? false
+    })!
+    sorted.insert(key1, at: key1Index)
+
+    let key2Index = sorted.firstIndex(where: { item in
+        return correctlyOrdered(left: key2[...], right: (item as! [Any])[...]) ?? false
+    })!
+    sorted.insert(key2, at: key2Index)
+
+    sorted.forEach { print($0) }
+
+    let result = (key1Index + 1) * (key2Index + 1)
+    print("\(result)")
+    assert(result == 22110)
+}
