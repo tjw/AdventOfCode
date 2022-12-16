@@ -59,6 +59,8 @@
 		34CF313F294C022B00094BD4 /* GridMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF30D42947040400094BD4 /* GridMap.swift */; };
 		34CF3161294C3AD500094BD4 /* RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3160294C3AD500094BD4 /* RGB.swift */; };
 		34CF3162294C3AF500094BD4 /* RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3160294C3AD500094BD4 /* RGB.swift */; };
+		34CF3164294C3CAF00094BD4 /* HashMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3163294C3CAF00094BD4 /* HashMap.swift */; };
+		34CF3166294C3E6D00094BD4 /* Bounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3165294C3E6D00094BD4 /* Bounds.swift */; };
 		34D0928B2942E01000F29B05 /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
 		34D092932942E3E200F29B05 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D092922942E3E200F29B05 /* main.swift */; };
 		34D092982942E3F500F29B05 /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
@@ -335,6 +337,8 @@
 		34CF31372949FCE700094BD4 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		34CF313C2949FCF800094BD4 /* input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
 		34CF3160294C3AD500094BD4 /* RGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RGB.swift; sourceTree = "<group>"; };
+		34CF3163294C3CAF00094BD4 /* HashMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashMap.swift; sourceTree = "<group>"; };
+		34CF3165294C3E6D00094BD4 /* Bounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bounds.swift; sourceTree = "<group>"; };
 		34D092902942E3E200F29B05 /* day5 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = day5; sourceTree = BUILT_PRODUCTS_DIR; };
 		34D092922942E3E200F29B05 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		34D092972942E3F000F29B05 /* input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
@@ -511,7 +515,9 @@
 			children = (
 				34072D902932F6C80030EB66 /* Input.swift */,
 				34CF30D12947025300094BD4 /* Location.swift */,
+				34CF3165294C3E6D00094BD4 /* Bounds.swift */,
 				34CF30D42947040400094BD4 /* GridMap.swift */,
+				34CF3163294C3CAF00094BD4 /* HashMap.swift */,
 				34CF3160294C3AD500094BD4 /* RGB.swift */,
 			);
 			name = Utilities;
@@ -1048,7 +1054,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				34CF3161294C3AD500094BD4 /* RGB.swift in Sources */,
+				34CF3166294C3E6D00094BD4 /* Bounds.swift in Sources */,
 				34CF313E294C022B00094BD4 /* Input.swift in Sources */,
+				34CF3164294C3CAF00094BD4 /* HashMap.swift in Sources */,
 				34CF313D294C022B00094BD4 /* Location.swift in Sources */,
 				34CF31382949FCE700094BD4 /* main.swift in Sources */,
 				34CF313F294C022B00094BD4 /* GridMap.swift in Sources */,
