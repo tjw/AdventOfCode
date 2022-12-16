@@ -11,6 +11,15 @@ struct Location : Hashable {
     let x: Int
     let y: Int
 
+    init(x: Int, y: Int) {
+        self.x = x
+        self.y = y
+    }
+    init(pair: (Int,Int)) {
+        self.x = pair.0
+        self.y = pair.1
+    }
+
     static func +(left: Location, right: Location) -> Location {
         return Location(x: left.x + right.x, y: left.y + right.y)
     }
