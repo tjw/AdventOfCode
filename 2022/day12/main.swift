@@ -12,7 +12,7 @@ let lines = Input.lines()
 var start = Location(x: 0, y: 0)
 var destination = Location(x: 0, y: 0)
 
-let map = Map(elements: (0..<lines.count).map { rowIndex in
+let map = GridMap(elements: (0..<lines.count).map { rowIndex in
     let row = lines[rowIndex]
     return (0..<row.count).map { columnIndex in
         let charIndex = row.index(row.startIndex, offsetBy: columnIndex)

@@ -9,7 +9,7 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-class Map<Element> {
+class GridMap<Element> {
 
     var elements: [[Element]]
     var width: Int
@@ -69,12 +69,6 @@ class Map<Element> {
         }
 
         print("width \(width), height \(height)")
-    }
-
-    struct RGB {
-        var r: UInt8
-        var g: UInt8
-        var b: UInt8
     }
 
     func writeImage(prefix: String, number: Int, flipped: Bool, makePixel: (Element) -> RGB) {

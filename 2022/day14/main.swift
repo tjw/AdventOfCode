@@ -25,6 +25,9 @@ enum Content: Character {
     case dropping = "+"
 }
 
+// We don't know the actual width/height up front so we'll start at zero by zero and increase as needed
+let map = GridMap<Content>(elements:[[]])
+
 for var line in input {
     var location = Location(pair: line.first!)
     line = Array(line.dropFirst())
@@ -59,22 +62,19 @@ for var line in input {
     }
 }
 
-// We don't know the actual width/height up front so we'll start at zero by zero and increase as needed
-let map = Map<Content>(elements:[[]])
-
 var imageCounter: Int = 0
 
 func writeMapImage() {
     map.writeImage(prefix: "day14", number: imageCounter, flipped: false) { content in
         switch content {
         case .air:
-            return Map.RGB(r: 255, g: 255, b: 255)
+            return RGB(r: 255, g: 255, b: 255)
         case .sand:
-            return Map.RGB(r: 255, g: 255, b: 0)
+            return RGB(r: 255, g: 255, b: 0)
         case .rock:
-            return Map.RGB(r: 0, g: 0, b: 0)
+            return RGB(r: 0, g: 0, b: 0)
         case .dropping:
-            return Map.RGB(r: 0, g: 255, b: 0)
+            return RGB(r: 0, g: 255, b: 0)
         }
     }
     imageCounter += 1
