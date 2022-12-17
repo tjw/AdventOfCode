@@ -20,6 +20,10 @@ struct Location : Hashable {
         self.y = pair.1
     }
 
+    func manhattanDistance(to other: Location) -> Int {
+        return abs(x - other.x) + abs(y - other.y)
+    }
+
     static func +(left: Location, right: Location) -> Location {
         return Location(x: left.x + right.x, y: left.y + right.y)
     }
