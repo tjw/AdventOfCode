@@ -24,7 +24,7 @@ let sensors: [Sensor] = Input.lines().map { line in
                   nearestBeacon: Location(x: Int(match.3)!, y: Int(match.4)!))
 }
 
-let candidateY = 10
+let candidateY = 2000000
 
 // For each sensor, find the range of the candidate Y line that intersects its exclusion diamond.
 // If the sensor is on exactly this Y, its range will start radius units before the sensor and end that far after for a total length of (radius + 1 + radius), with one for the sensor itself. Each Y offset above or below the sensor, the effective radius goes down by one (so the width goes down by two) until at Y +/- radius where the range has width 1. Beyond that, the Y line doesn't intersect the exclusion radius of that sensor.
@@ -49,7 +49,7 @@ let ranges: [Range<Int>] = sensors.compactMap { sensor in
     let effectiveRadius = (width - 1)/2
     print("  effectiveRadius \(effectiveRadius)")
 
-    let result = (sensor.location.x - effectiveRadius)..<(sensor.location.x + 2*effectiveRadius + 1)
+    let result = (sensor.location.x - effectiveRadius)..<(sensor.location.x + effectiveRadius + 1)
     print("  result \(result)")
     return result
 }.sorted(by: { a, b in
@@ -59,27 +59,50 @@ let ranges: [Range<Int>] = sensors.compactMap { sensor in
 print("ranges \(ranges)")
 
 var total = 0
-var currentX = ranges.first!.lowerBound
-var candidateEndX = ranges.first!.upperBound
+var currentRange = ranges.first!
+print("# starting range \(currentRange)")
 
 for range in ranges.dropFirst() {
-    print("# range \(range)")
+    print("# next range \(range)")
 
-    if (candidateEndX >= range.upperBound) {
+    if (currentRange.upperBound >= range.upperBound) {
         // new range completely contained by the current range
-        print("  current range of \(currentX..<candidateEndX) entirely contains next range \(range)")
-    } else if range.contains(candidateEndX) {
+        print("  current range of \(currentRange) entirely contains next range \(range)")
+    } else if range.contains(currentRange.upperBound) {
         // candidate range overlaps the current range and so extends it
-        let currentRange = currentX..<candidateEndX
-        candidateEndX = range.upperBound
-        print("  current range of \(currentRange) overlaps next range \(range), new candidateEndX is \(candidateEndX)")
+        let previousCurrentRange = currentRange
+        currentRange = currentRange.lowerBound..<range.upperBound
+        print("  previous current range of \(previousCurrentRange) overlaps next range \(range), new candidateEndX is \(currentRange)")
     } else {
-        total += candidateEndX - currentX
-        currentX = range.lowerBound
-        candidateEndX = range.upperBound
-        print("  add \(candidateEndX - currentX) to total, new current range of \(currentX..<candidateEndX)")
+        let currentRangeLength = currentRange.upperBound - currentRange.lowerBound - 1
+        total += currentRangeLength
+        currentRange = range
+        print("  add \(currentRangeLength) to total, new current range of \(currentRange)")
     }
 }
 
-total += candidateEndX - currentX
+print("  adding final \(currentRange.upperBound - currentRange.lowerBound) to total")
+total += currentRange.upperBound - currentRange.lowerBound - 1
 print("total \(total)")
+assert(total == 5809294)
+
+/* This comes out one off somehow
+var indexSet = IndexSet()
+var offset = ranges.first!.lowerBound
+
+for range in ranges {
+    print("range \(range)")
+    let offsetRange = (range.lowerBound - offset)..<(range.upperBound - offset)
+    print("offsetRange \(offsetRange)")
+
+    indexSet.insert(integersIn: offsetRange)
+    print("  count now \(indexSet.count)")
+}
+
+print("count \(indexSet.count)")
+ */
+// 6969021 is too high
+// 5139102 is too low
+// 5139103 is not right
+// 5809295 is not right
+
