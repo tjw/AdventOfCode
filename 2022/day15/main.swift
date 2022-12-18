@@ -24,85 +24,110 @@ let sensors: [Sensor] = Input.lines().map { line in
                   nearestBeacon: Location(x: Int(match.3)!, y: Int(match.4)!))
 }
 
-let candidateY = 2000000
+func excludedRanges(candidateY: Int, in allowedXRange: ClosedRange<Int>?) -> [ClosedRange<Int>] {
+    // For each sensor, find the range of the candidate Y line that intersects its exclusion diamond.
+    // If the sensor is on exactly this Y, its range will start radius units before the sensor and end that far after for a total length of (radius + 1 + radius), with one for the sensor itself. Each Y offset above or below the sensor, the effective radius goes down by one (so the width goes down by two) until at Y +/- radius where the range has width 1. Beyond that, the Y line doesn't intersect the exclusion radius of that sensor.
+    // Ranges might also be overlapping, so sort them by their lower bound for following processing
 
-// For each sensor, find the range of the candidate Y line that intersects its exclusion diamond.
-// If the sensor is on exactly this Y, its range will start radius units before the sensor and end that far after for a total length of (radius + 1 + radius), with one for the sensor itself. Each Y offset above or below the sensor, the effective radius goes down by one (so the width goes down by two) until at Y +/- radius where the range has width 1. Beyond that, the Y line doesn't intersect the exclusion radius of that sensor.
-// Ranges might also be overlapping, so sort them by their lower bound for following processing
+    let ranges: [ClosedRange<Int>] = sensors.compactMap { (sensor: Sensor) -> ClosedRange<Int>? in
+        //print("sensor at \(sensor.location), nearest beacon: \(sensor.nearestBeacon), excluded radius \(sensor.excludedRadius)")
+        let maxWidth = 2*sensor.excludedRadius + 1
+        //print("  maxWidth \(maxWidth)")
 
-let ranges: [Range<Int>] = sensors.compactMap { sensor in
-    print("sensor at \(sensor.location), nearest beacon: \(sensor.nearestBeacon), excluded radius \(sensor.excludedRadius)")
-    let maxWidth = 2*sensor.excludedRadius + 1
-    print("  maxWidth \(maxWidth)")
+        let yOffset = abs(candidateY - sensor.location.y)
+        //print("  yOffset \(yOffset)")
 
-    let yOffset = abs(candidateY - sensor.location.y)
-    print("  yOffset \(yOffset)")
+        let width = maxWidth - 2*yOffset
+        //print("  width \(width)")
 
-    let width = maxWidth - 2*yOffset
-    print("  width \(width)")
+        guard width > 0 else {
+            //print("  no intersection")
+            return nil
+        }
 
-    guard width > 0 else {
-        print("  no intersection")
-        return nil
+        let effectiveRadius = (width - 1)/2
+        //print("  effectiveRadius \(effectiveRadius)")
+
+        let result = (sensor.location.x - effectiveRadius)...(sensor.location.x + effectiveRadius)
+        //print("  result \(result)")
+
+        if let allowedXRange {
+            let minX: Int = max(result.lowerBound, allowedXRange.lowerBound)
+            let maxX: Int = min(result.upperBound, allowedXRange.upperBound)
+            let clamped: ClosedRange<Int> = minX...maxX
+            //print("  clamped \(clamped)")
+            return clamped
+        }
+
+        return result
+    }.sorted(by: { a, b in
+        a.lowerBound < b.lowerBound
+    })
+
+    //print("ranges \(ranges)")
+    return ranges
+}
+
+func combineExcludedRanges(ranges: [ClosedRange<Int>]) -> [ClosedRange<Int>] {
+    var result = [ClosedRange<Int>]()
+    var currentRange = ranges.first!
+
+    for range in ranges.dropFirst() {
+        if (currentRange.upperBound >= range.upperBound) {
+            // new range completely contained by the current range
+        } else if range.contains(currentRange.upperBound) {
+            currentRange = currentRange.lowerBound...range.upperBound
+        } else {
+            result.append(currentRange)
+            currentRange = range
+        }
     }
 
-    let effectiveRadius = (width - 1)/2
-    print("  effectiveRadius \(effectiveRadius)")
-
-    let result = (sensor.location.x - effectiveRadius)..<(sensor.location.x + effectiveRadius + 1)
-    print("  result \(result)")
+    result.append(currentRange)
     return result
-}.sorted(by: { a, b in
-    a.lowerBound < b.lowerBound
-})
+}
 
-print("ranges \(ranges)")
+func countExcludedRanges(ranges: [ClosedRange<Int>]) -> Int {
+    var total = 0
 
-var total = 0
-var currentRange = ranges.first!
-print("# starting range \(currentRange)")
+    for range in combineExcludedRanges(ranges: ranges) {
+        total += range.upperBound - range.lowerBound
+    }
 
-for range in ranges.dropFirst() {
-    print("# next range \(range)")
+    //print("total \(total)")
+    return total
+}
 
-    if (currentRange.upperBound >= range.upperBound) {
-        // new range completely contained by the current range
-        print("  current range of \(currentRange) entirely contains next range \(range)")
-    } else if range.contains(currentRange.upperBound) {
-        // candidate range overlaps the current range and so extends it
-        let previousCurrentRange = currentRange
-        currentRange = currentRange.lowerBound..<range.upperBound
-        print("  previous current range of \(previousCurrentRange) overlaps next range \(range), new candidateEndX is \(currentRange)")
-    } else {
-        let currentRangeLength = currentRange.upperBound - currentRange.lowerBound - 1
-        total += currentRangeLength
-        currentRange = range
-        print("  add \(currentRangeLength) to total, new current range of \(currentRange)")
+do {
+    let ranges = excludedRanges(candidateY: 2_000_000, in: nil)
+    let result = countExcludedRanges(ranges: ranges)
+    print("result \(result)")
+    assert(result == 5809294)
+}
+
+do {
+    let allowedRange = 0...4_000_000
+
+    for y in 3308000...4_000_000 {
+        let ranges = excludedRanges(candidateY: y, in: allowedRange)
+        let combinedRanges = combineExcludedRanges(ranges: ranges)
+        let count = countExcludedRanges(ranges: combinedRanges)
+        if (y % 1_000 == 0) {
+            print("y \(y)")
+        }
+        if count < 4_000_000 {
+            print("y \(y), count \(count), combinedRanges \(combinedRanges)")
+
+            assert(combinedRanges.count == 2)
+
+            let x = combinedRanges.first!.upperBound + 1
+            assert(x == 2673432)
+
+            let result = x * 4000000 + y
+            print("\(result)")
+            assert(result == 10693731308112)
+
+            break
+        }
     }
 }
-
-print("  adding final \(currentRange.upperBound - currentRange.lowerBound) to total")
-total += currentRange.upperBound - currentRange.lowerBound - 1
-print("total \(total)")
-assert(total == 5809294)
-
-/* This comes out one off somehow
-var indexSet = IndexSet()
-var offset = ranges.first!.lowerBound
-
-for range in ranges {
-    print("range \(range)")
-    let offsetRange = (range.lowerBound - offset)..<(range.upperBound - offset)
-    print("offsetRange \(offsetRange)")
-
-    indexSet.insert(integersIn: offsetRange)
-    print("  count now \(indexSet.count)")
-}
-
-print("count \(indexSet.count)")
- */
-// 6969021 is too high
-// 5139102 is too low
-// 5139103 is not right
-// 5809295 is not right
-
