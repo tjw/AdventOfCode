@@ -75,23 +75,38 @@ do {
     var current = [Path:Int]()
 
     for source in nodes {
+        print("source \(source)")
         var length = 1
         var nextNodes = source.neighbors
+        var visited = Set<String>([source.name])
+        print("  nextNodes \(nextNodes)")
 
         while !nextNodes.isEmpty {
             var newNodes = [String]()
 
             for dest in nextNodes {
+                print("  dest \(dest)")
                 let pair = Path(a: source.name, b: dest)
-                if current[pair] == nil {
+
+                if let best = current[pair] {
+                    assert(best == length) // undirected
+                } else {
                     current[pair] = length
-                    print("pair \(pair) length \(length)")
-                    newNodes.append(contentsOf: nodeByName[dest]!.neighbors)
+                    print("    pair \(pair) length \(length)")
+                }
+
+                visited.insert(dest)
+
+                for name in nodeByName[dest]!.neighbors {
+                    if !visited.contains(name) {
+                        newNodes.append(name)
+                    }
                 }
             }
 
             nextNodes = newNodes
             length += 1
+            print("  nextNodes \(nextNodes)")
         }
     }
 }
