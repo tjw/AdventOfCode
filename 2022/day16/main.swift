@@ -55,7 +55,7 @@ let currentNode = "AA"
 
 // Calculate all pairs shortest paths for the graph just counting the number of hops (minutes) to make the trip. Not doing the Floyd-Warshall/whatever algorithm.
 
-struct Path : Hashable {
+struct Path : Comparable, Hashable {
     let a, b: String
 
     // Since our graph is not directed, a->b and b->a are the same length.
@@ -68,6 +68,20 @@ struct Path : Hashable {
             self.b = a
         }
     }
+
+    static func < (lhs: Path, rhs: Path) -> Bool {
+        if lhs.a < rhs.a {
+            return true
+        }
+        if lhs.a > rhs.a {
+            return false
+        }
+        if lhs.b < rhs.b {
+            return true
+        }
+        return false
+    }
+
 }
 
 let bestPath: [Path:Int]
@@ -75,24 +89,24 @@ do {
     var current = [Path:Int]()
 
     for source in nodes {
-        print("source \(source)")
+        //print("source \(source)")
         var length = 1
         var nextNodes = source.neighbors
         var visited = Set<String>([source.name])
-        print("  nextNodes \(nextNodes)")
+        //print("  nextNodes \(nextNodes)")
 
         while !nextNodes.isEmpty {
             var newNodes = [String]()
 
             for dest in nextNodes {
-                print("  dest \(dest)")
+                //print("  dest \(dest)")
                 let pair = Path(a: source.name, b: dest)
 
                 if let best = current[pair] {
-                    assert(best == length) // undirected
+                    assert(best <= length) // undirected
                 } else {
                     current[pair] = length
-                    print("    pair \(pair) length \(length)")
+                    //print("    pair \(pair) length \(length)")
                 }
 
                 visited.insert(dest)
@@ -106,12 +120,72 @@ do {
 
             nextNodes = newNodes
             length += 1
-            print("  nextNodes \(nextNodes)")
+            //print("  nextNodes \(nextNodes)")
         }
     }
+
+    bestPath = current
 }
 
-
+//bestPath.keys.sorted().forEach { key in
+//    print("\(key) \(bestPath[key]!)")
+//}
 
 // Mark valves with zero flow as already open
 let initialOpenValves = nodes.filter { $0.rate == 0 }
+print("initialOpenValves \(initialOpenValves)")
+var availableValves = nodes.filter { $0.rate != 0 }
+print("availableValves \(availableValves)")
+
+let maxMinutes = 30
+
+func process(location: Node, openValves: [Node], availableValves: [Node], minute: Int, totalFlow: Int) -> ([Node], Int) {
+    var bestResult: ([Node], Int) = (openValves, totalFlow)
+
+    print("## Minute \(minute), at \(location), openValves: \(openValves), availableValves: \(availableValves)")
+
+    // Try each of the possible available valves as the next one to open
+    for valveIndex in 0..<availableValves.count {
+        let valve = availableValves[valveIndex]
+        let path = Path(a: location.name, b: valve.name)
+        print("  try \(valve) at distance \(bestPath[path]!)")
+
+        // Travel to the new valve (though we might run out of time)
+        let travelTime = min(bestPath[path]!, maxMinutes - minute)
+        print("  travel time \(travelTime)")
+
+        let currentFlow = openValves.reduce(0, { $0 + $1.rate })
+        print("  currentFlow \(currentFlow)")
+        var updatedFlow = totalFlow + travelTime * currentFlow
+        print("  updatedFlow \(updatedFlow)")
+
+        // If we still have time, spend a minute opening the valve
+        var updatedTime = minute + travelTime
+        print("  updatedTime \(updatedTime)")
+
+        if updatedTime < maxMinutes {
+            updatedFlow += currentFlow
+            updatedTime += 1
+
+            var updatedAvailableVales = availableValves
+            updatedAvailableVales.remove(at: valveIndex)
+
+            let result = process(location: valve, openValves: openValves + [valve], availableValves: updatedAvailableVales, minute: updatedTime, totalFlow: updatedFlow)
+            if result.1 > bestResult.1 {
+                bestResult = result
+                print("  bestResult \(bestResult)")
+            }
+        } else {
+            // Ran out of time
+            if updatedFlow > bestResult.1 {
+                bestResult = (openValves, updatedFlow)
+                print("  bestResult \(bestResult)")
+            }
+        }
+    }
+
+    return bestResult
+}
+
+let (path, totalFlow) = process(location: nodeByName["AA"]!, openValves: [], availableValves: availableValves, minute: 1, totalFlow: 0)
+print("path \(path), totalFlow \(totalFlow)")
