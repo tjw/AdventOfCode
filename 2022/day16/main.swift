@@ -7,8 +7,7 @@
 
 import Foundation
 
-class Node : CustomStringConvertible {
-
+class Node : Equatable, CustomStringConvertible {
     let name: String
     let rate: Int
     let neighbors: [String]
@@ -21,6 +20,10 @@ class Node : CustomStringConvertible {
 
     var description: String {
         return name
+    }
+
+    static func == (lhs: Node, rhs: Node) -> Bool {
+        lhs === rhs
     }
 
 }
@@ -139,10 +142,85 @@ print("availableValves \(availableValves)")
 
 let maxMinutes = 30
 
+enum Action {
+    case idle(Node) // initial state and when there are no more available valves to open
+    case move(Node, Int)
+}
+
+struct State : Comparable, Equatable {
+    var openValves: [Node]
+    var pressureReleased: Int
+
+    static func < (lhs: State, rhs: State) -> Bool {
+        return lhs.pressureReleased < rhs.pressureReleased
+    }
+
+    var currentFlow: Int {
+        openValves.reduce(0, { $0 + $1.rate })
+    }
+}
+
+func process(action: Action, state: State, availableValves: [Node], time: Int) -> State {
+    var updatedState = state
+
+    let currentFlow = state.currentFlow
+    updatedState.pressureReleased += currentFlow
+
+    if time == maxMinutes {
+        return updatedState
+    }
+
+    let location: Node
+    var updatedAvailableValves: [Node]
+
+    switch action {
+    case .idle(let valve):
+        location = valve
+        updatedAvailableValves = availableValves
+    case .move(let destination, let remainingTime):
+        if remainingTime > 0 {
+            return process(action: .move(destination, remainingTime - 1), state: updatedState, availableValves: availableValves, time: time + 1)
+        } else {
+            location = destination
+            updatedState.openValves = updatedState.openValves + [destination]
+            updatedAvailableValves = availableValves.filter { $0 != destination }
+        }
+    }
+
+    if updatedAvailableValves.isEmpty {
+        return process(action: .idle(location), state: updatedState, availableValves: updatedAvailableValves, time: time + 1)
+    }
+
+    var bestState = updatedState
+    for valveIndex in 0..<updatedAvailableValves.count {
+        let valve = updatedAvailableValves[valveIndex]
+        let path = Path(a: location.name, b: valve.name)
+        let travelTime = bestPath[path]!
+
+        let state = process(action: .move(valve, travelTime - 1), state: updatedState, availableValves: updatedAvailableValves, time: time + 1)
+        if state > bestState {
+            bestState = state
+        }
+    }
+
+    return bestState
+}
+
+
 func process(location: Node, openValves: [Node], availableValves: [Node], minute: Int, totalFlow: Int) -> ([Node], Int) {
     var bestResult: ([Node], Int) = (openValves, totalFlow)
 
-    print("## Minute \(minute), at \(location), openValves: \(openValves), availableValves: \(availableValves)")
+    print("## Minute \(minute), at \(location), openValves: \(openValves), availableValves: \(availableValves), totalFlow \(totalFlow)")
+
+    let currentFlow = openValves.reduce(0, { $0 + $1.rate })
+    print("  currentFlow \(currentFlow)")
+
+    if availableValves.isEmpty {
+        // Sit idle for the rest of the time
+        let remainingTime = maxMinutes - minute
+        print("  remaining time \(remainingTime)")
+        return (bestResult.0, bestResult.1 + currentFlow * remainingTime)
+    }
 
     // Try each of the possible available valves as the next one to open
     for valveIndex in 0..<availableValves.count {
@@ -154,18 +232,16 @@ func process(location: Node, openValves: [Node], availableValves: [Node], minute
         let travelTime = min(bestPath[path]!, maxMinutes - minute)
         print("  travel time \(travelTime)")
 
-        let currentFlow = openValves.reduce(0, { $0 + $1.rate })
-        print("  currentFlow \(currentFlow)")
         var updatedFlow = totalFlow + travelTime * currentFlow
-        print("  updatedFlow \(updatedFlow)")
 
         // If we still have time, spend a minute opening the valve
         var updatedTime = minute + travelTime
-        print("  updatedTime \(updatedTime)")
+        print("  after travel, time \(updatedTime), flow \(updatedFlow)")
 
         if updatedTime < maxMinutes {
             updatedFlow += currentFlow
             updatedTime += 1
+            print("  after opening \(valve), time \(updatedTime), flow \(updatedFlow)")
 
             var updatedAvailableVales = availableValves
             updatedAvailableVales.remove(at: valveIndex)
@@ -187,5 +263,8 @@ func process(location: Node, openValves: [Node], availableValves: [Node], minute
     return bestResult
 }
 
-let (path, totalFlow) = process(location: nodeByName["AA"]!, openValves: [], availableValves: availableValves, minute: 1, totalFlow: 0)
-print("path \(path), totalFlow \(totalFlow)")
+//let (path, totalFlow) = process(location: nodeByName["AA"]!, openValves: [], availableValves: availableValves, minute: 1, totalFlow: 0)
+//print("path \(path), totalFlow \(totalFlow)")
+
+let result = process(action: .idle(nodeByName["AA"]!), state: State(openValves: [], pressureReleased: 0), availableValves: availableValves, time: 1)
+print("result \(result)")
