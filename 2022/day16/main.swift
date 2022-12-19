@@ -142,7 +142,7 @@ print("availableValves \(availableValves)")
 
 let maxMinutes = 30
 
-enum Action {
+enum Action : Equatable {
     case idle(Node) // initial state and when there are no more available valves to open
     case move(Node, Int)
 }
@@ -150,6 +150,7 @@ enum Action {
 struct State : Comparable, Equatable {
     var openValves: [Node]
     var pressureReleased: Int
+    var actions: [Action] = []
 
     static func < (lhs: State, rhs: State) -> Bool {
         return lhs.pressureReleased < rhs.pressureReleased
@@ -162,6 +163,7 @@ struct State : Comparable, Equatable {
 
 func process(action: Action, state: State, availableValves: [Node], time: Int) -> State {
     var updatedState = state
+    updatedState.actions.append(action)
 
     let currentFlow = state.currentFlow
     updatedState.pressureReleased += currentFlow
@@ -197,7 +199,7 @@ func process(action: Action, state: State, availableValves: [Node], time: Int) -
         let path = Path(a: location.name, b: valve.name)
         let travelTime = bestPath[path]!
 
-        let state = process(action: .move(valve, travelTime - 1), state: updatedState, availableValves: updatedAvailableValves, time: time + 1)
+        let state = process(action: .move(valve, travelTime), state: updatedState, availableValves: updatedAvailableValves, time: time + 1)
         if state > bestState {
             bestState = state
         }
@@ -266,5 +268,5 @@ func process(location: Node, openValves: [Node], availableValves: [Node], minute
 //let (path, totalFlow) = process(location: nodeByName["AA"]!, openValves: [], availableValves: availableValves, minute: 1, totalFlow: 0)
 //print("path \(path), totalFlow \(totalFlow)")
 
-let result = process(action: .idle(nodeByName["AA"]!), state: State(openValves: [], pressureReleased: 0), availableValves: availableValves, time: 1)
+let result = process(action: .idle(nodeByName["AA"]!), state: State(openValves: [], pressureReleased: 0), availableValves: availableValves, time: 0)
 print("result \(result)")
