@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Algorithms
 
 class Node : Equatable, CustomStringConvertible {
     let name: String
@@ -140,8 +141,6 @@ print("initialOpenValves \(initialOpenValves)")
 var availableValves = nodes.filter { $0.rate != 0 }
 print("availableValves \(availableValves)")
 
-let maxMinutes = 30
-
 enum Action : Equatable {
     case idle(Node) // initial state and when there are no more available valves to open
     case move(Node, Int)
@@ -161,7 +160,7 @@ struct State : Comparable, Equatable {
     }
 }
 
-func process(action: Action, state: State, availableValves: [Node], time: Int) -> State {
+func process(action: Action, state: State, availableValves: [Node], time: Int, maxMinutes: Int) -> State {
     var updatedState = state
     updatedState.actions.append(action)
 
@@ -181,7 +180,7 @@ func process(action: Action, state: State, availableValves: [Node], time: Int) -
         updatedAvailableValves = availableValves
     case .move(let destination, let remainingTime):
         if remainingTime > 0 {
-            return process(action: .move(destination, remainingTime - 1), state: updatedState, availableValves: availableValves, time: time + 1)
+            return process(action: .move(destination, remainingTime - 1), state: updatedState, availableValves: availableValves, time: time + 1, maxMinutes: maxMinutes)
         } else {
             location = destination
             updatedState.openValves = updatedState.openValves + [destination]
@@ -190,7 +189,7 @@ func process(action: Action, state: State, availableValves: [Node], time: Int) -
     }
 
     if updatedAvailableValves.isEmpty {
-        return process(action: .idle(location), state: updatedState, availableValves: updatedAvailableValves, time: time + 1)
+        return process(action: .idle(location), state: updatedState, availableValves: updatedAvailableValves, time: time + 1, maxMinutes: maxMinutes)
     }
 
     var bestState = updatedState
@@ -199,7 +198,7 @@ func process(action: Action, state: State, availableValves: [Node], time: Int) -
         let path = Path(a: location.name, b: valve.name)
         let travelTime = bestPath[path]!
 
-        let state = process(action: .move(valve, travelTime), state: updatedState, availableValves: updatedAvailableValves, time: time + 1)
+        let state = process(action: .move(valve, travelTime), state: updatedState, availableValves: updatedAvailableValves, time: time + 1, maxMinutes: maxMinutes)
         if state > bestState {
             bestState = state
         }
@@ -208,7 +207,7 @@ func process(action: Action, state: State, availableValves: [Node], time: Int) -
     return bestState
 }
 
-
+/*
 func process(location: Node, openValves: [Node], availableValves: [Node], minute: Int, totalFlow: Int) -> ([Node], Int) {
     var bestResult: ([Node], Int) = (openValves, totalFlow)
 
@@ -264,9 +263,28 @@ func process(location: Node, openValves: [Node], availableValves: [Node], minute
 
     return bestResult
 }
+*/
+
+// We have 15 available valves to start, permutations(15) is 1_307_674_368_000
+//for x in nodes.permutations() {
+//
+//}
 
 //let (path, totalFlow) = process(location: nodeByName["AA"]!, openValves: [], availableValves: availableValves, minute: 1, totalFlow: 0)
 //print("path \(path), totalFlow \(totalFlow)")
 
-let result = process(action: .idle(nodeByName["AA"]!), state: State(openValves: [], pressureReleased: 0), availableValves: availableValves, time: 0)
-print("result \(result)")
+do {
+    let result = process(action: .idle(nodeByName["AA"]!), state: State(openValves: [], pressureReleased: 0), availableValves: availableValves, time: 0, maxMinutes: 30)
+    print("result \(result)")
+    assert(result.pressureReleased == 2181)
+}
+
+do {
+    let first = process(action: .idle(nodeByName["AA"]!), state: State(openValves: [], pressureReleased: 0), availableValves: availableValves, time: 0, maxMinutes: 26)
+    print("first \(first)")
+
+    let second = process(action: .idle(nodeByName["AA"]!), state: State(openValves: [], pressureReleased: 0), availableValves: availableValves.filter { first.openValves.contains($0) == false }, time: 0, maxMinutes: 26)
+    print("second \(second)")
+    print("\(first.pressureReleased + second.pressureReleased)")
+    assert(first.pressureReleased + second.pressureReleased == 2824)
+}
