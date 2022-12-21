@@ -31,6 +31,10 @@ class HashMap<Element> {
         }
     }
 
+    func clear(location: Location) {
+        elements.removeValue(forKey: location)
+    }
+
     var bounds: Bounds {
         guard !elements.isEmpty else { return Bounds(x: 0, y: 0, width: 0, height: 0) }
 

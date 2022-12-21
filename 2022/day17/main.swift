@@ -58,19 +58,11 @@ enum MapElement : String {
     case dropping = "@"
 }
 
-let map = HashMap<MapElement>(defaultElement: .air)
 let width = 7
+let input: [Character] = Array(Input.lines().first!.trimmingCharacters(in: .whitespacesAndNewlines))
+print("input length \(input.count)")
 
-// The floor is at y = 0
-var highestRock = 0
-
-var rocksDropped = 0
-let rocksLimit = 2022
-
-var inputOffset = 0
-let input: [Character] = Array(Input.lines().first!)
-
-func canMove(to location: Location, rock: [Location]) -> Bool {
+func canMove(rock: [Location], to location: Location, map: HashMap<MapElement>) -> Bool {
     for offset in rock {
         let pieceLocation = location + offset
 
@@ -91,7 +83,7 @@ func canMove(to location: Location, rock: [Location]) -> Bool {
 }
 
 // Returns the higest Y offset on the rock
-func paint(rock: [Location], at location: Location, value: MapElement) -> Int {
+func paint(map: HashMap<MapElement>, rock: [Location], at location: Location, value: MapElement) -> Int {
     var highestY = 0
 
     for offset in rock {
@@ -104,11 +96,23 @@ func paint(rock: [Location], at location: Location, value: MapElement) -> Int {
     return highestY
 }
 
-func printMap() {
-    var y = highestRock + 4 + 4 // tallest possible dropping rock + starting offset
+func clear(map: HashMap<MapElement>, rock: [Location], at location: Location) {
+    for offset in rock {
+        map.clear(location: location + offset)
+    }
+}
 
-    while y > 0 {
-        print("|", terminator: "")
+func print(map: HashMap<MapElement>, highestRock: Int, range range_: ClosedRange<Int>? = nil) {
+    let range: ClosedRange<Int>
+    if let range_ {
+        range = range_
+    } else {
+        let y = highestRock + 4 + 4 // tallest possible dropping rock + starting offset
+        range = 1...y
+    }
+
+    for y in range.reversed() {
+        print("\(String(format: "% 4d", y)): |", terminator: "")
         for x in 0..<7 {
             print(map[Location(x: x, y: y)].rawValue, terminator: "")
         }
@@ -118,58 +122,94 @@ func printMap() {
         } else {
             print("|")
         }
-
-        y -= 1
     }
     print("+-------+")
 }
 
-while rocksDropped < rocksLimit {
-    let rock = rocks[rocksDropped % rocks.count]
-    print("\(rocksDropped) \(rock)")
-    rocksDropped += 1
+func process(map: HashMap<MapElement>, rocksLimit: Int) -> Int {
+    // The floor is at y = 0
 
-    var location = Location(x: 2, y: highestRock + 4)
-    _ = paint(rock: rock, at: location, value: .dropping)
-    //printMap()
+    // Allow for the map having been partially filled already
+    let bounds = map.bounds
+    var highestRock = bounds.y + bounds.height
 
-    while true {
-        // Process the jet
-        let jet = input[inputOffset % input.count]
-        inputOffset += 1
+    print(map: map, highestRock: highestRock, range: max(1, highestRock - 5)...(highestRock + 8))
 
-        if jet == "<" {
-            if canMove(to: location + .left, rock: rock) {
-                _ = paint(rock: rock, at: location, value: .air)
-                location += .left
-                _ = paint(rock: rock, at: location, value: .dropping)
-            }
-        } else if jet == ">" {
-            if canMove(to: location + .right, rock: rock) {
-                _ = paint(rock: rock, at: location, value: .air)
-                location += .right
-                _ = paint(rock: rock, at: location, value: .dropping)
-            }
-        }
+    var rocksDropped = 0
+    var inputOffset = 0
+
+    while rocksDropped < rocksLimit {
+        let rock = rocks[rocksDropped % rocks.count]
+        rocksDropped += 1
+
+        var location = Location(x: 2, y: highestRock + 4)
+        _ = paint(map: map, rock: rock, at: location, value: .dropping)
         //printMap()
 
-        // Move down
-        if canMove(to: location + .down, rock: rock) {
-            _ = paint(rock: rock, at: location, value: .air)
-            location += .down
-            _ = paint(rock: rock, at: location, value: .dropping)
+        while true {
+            // Process the jet
+            let jet = input[inputOffset % input.count]
+            inputOffset += 1
+
+            if jet == "<" {
+                if canMove(rock: rock, to: location + .left, map: map) {
+                    clear(map: map, rock: rock, at: location)
+                    location += .left
+                    _ = paint(map: map, rock: rock, at: location, value: .dropping)
+                }
+            } else if jet == ">" {
+                if canMove(rock: rock, to: location + .right, map: map) {
+                    clear(map: map, rock: rock, at: location)
+                    location += .right
+                    _ = paint(map: map, rock: rock, at: location, value: .dropping)
+                }
+            }
             //printMap()
-        } else {
-            // Turn to stone
-            highestRock = max(highestRock, paint(rock: rock, at: location, value: .stone))
-            //printMap()
-            break
+
+            // Move down
+            if canMove(rock: rock, to: location + .down, map: map) {
+                clear(map: map, rock: rock, at: location)
+                location += .down
+                _ = paint(map: map, rock: rock, at: location, value: .dropping)
+                //printMap()
+            } else {
+                // Turn to stone
+                highestRock = max(highestRock, paint(map: map, rock: rock, at: location, value: .stone))
+                //printMap()
+                break
+            }
         }
     }
+
+    return highestRock
 }
 
-print("rocksDropped \(rocksDropped)")
-print("highestRock \(highestRock)")
-assert(highestRock == 3177)
+if false {
+    let map = HashMap<MapElement>(defaultElement: .air)
+
+    let result = process(map: map, rocksLimit: 2022)
+
+    print("result \(result)")
+    assert(result == 3177)
+}
+
+if true {
+    let map = HashMap<MapElement>(defaultElement: .air)
+
+    var previousHeight = 0
+
+    for rep in 0..<100 {
+        let height = process(map: map, rocksLimit: input.count * rocks.count)
+        print("rep \(rep) added height \(height - previousHeight)")
+        previousHeight = height
+    }
+
+    // each rep is rock count * input length rocks dropped (5 * 10091) = 50455
+    // rep 0 is 78982
+    // rep 1 is 78973
+    // rep 2 is 78980
+    // following reps are rep 1 and 2 cycled infinitely
+}
+
 
 // 1_000_000_000_000
