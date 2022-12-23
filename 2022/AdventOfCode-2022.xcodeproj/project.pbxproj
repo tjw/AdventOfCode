@@ -78,6 +78,9 @@
 		34CF31942952D25300094BD4 /* Bounds2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3165294C3E6D00094BD4 /* Bounds2D.swift */; };
 		34CF31952952D25B00094BD4 /* RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3160294C3AD500094BD4 /* RGB.swift */; };
 		34CF319D2955828000094BD4 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF319C2955828000094BD4 /* main.swift */; };
+		34CF31AB2955857C00094BD4 /* HashMap3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF31AA2955857C00094BD4 /* HashMap3D.swift */; };
+		34CF31AD2955858600094BD4 /* Location3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF31AC2955858600094BD4 /* Location3D.swift */; };
+		34CF31AF2955858D00094BD4 /* Bounds3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF31AE2955858D00094BD4 /* Bounds3D.swift */; };
 		34D0928B2942E01000F29B05 /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
 		34D092932942E3E200F29B05 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D092922942E3E200F29B05 /* main.swift */; };
 		34D092982942E3F500F29B05 /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
@@ -432,6 +435,9 @@
 		34CF319A2955828000094BD4 /* day18 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = day18; sourceTree = BUILT_PRODUCTS_DIR; };
 		34CF319C2955828000094BD4 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		34CF31A12955828C00094BD4 /* input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
+		34CF31AA2955857C00094BD4 /* HashMap3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashMap3D.swift; sourceTree = "<group>"; };
+		34CF31AC2955858600094BD4 /* Location3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location3D.swift; sourceTree = "<group>"; };
+		34CF31AE2955858D00094BD4 /* Bounds3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bounds3D.swift; sourceTree = "<group>"; };
 		34D092902942E3E200F29B05 /* day5 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = day5; sourceTree = BUILT_PRODUCTS_DIR; };
 		34D092922942E3E200F29B05 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		34D092972942E3F000F29B05 /* input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
@@ -644,10 +650,13 @@
 			isa = PBXGroup;
 			children = (
 				34072D902932F6C80030EB66 /* Input.swift */,
+				34CF30D42947040400094BD4 /* GridMap.swift */,
 				34CF30D12947025300094BD4 /* Location2D.swift */,
 				34CF3165294C3E6D00094BD4 /* Bounds2D.swift */,
-				34CF30D42947040400094BD4 /* GridMap.swift */,
 				34CF3163294C3CAF00094BD4 /* HashMap2D.swift */,
+				34CF31AC2955858600094BD4 /* Location3D.swift */,
+				34CF31AE2955858D00094BD4 /* Bounds3D.swift */,
+				34CF31AA2955857C00094BD4 /* HashMap3D.swift */,
 				34CF3160294C3AD500094BD4 /* RGB.swift */,
 			);
 			name = Utilities;
@@ -1356,6 +1365,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				34CF319D2955828000094BD4 /* main.swift in Sources */,
+				34CF31AD2955858600094BD4 /* Location3D.swift in Sources */,
+				34CF31AB2955857C00094BD4 /* HashMap3D.swift in Sources */,
+				34CF31AF2955858D00094BD4 /* Bounds3D.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
