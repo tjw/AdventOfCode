@@ -11,6 +11,8 @@ import UniformTypeIdentifiers
 
 class GridMap<Element> {
 
+    typealias Location = Location2D
+
     var elements: [[Element]]
     var width: Int
     var height: Int

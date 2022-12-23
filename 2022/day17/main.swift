@@ -7,6 +7,9 @@
 
 import Foundation
 
+typealias Location = Location2D
+typealias HashMap = HashMap2D
+
 // Describe rocks as a list of offsets from their bottom/left corner
 let rocks: [[Location]] = [
     // Horizontal line
@@ -243,7 +246,7 @@ if true {
         }
     }
 
-    // TODO: Handle the last bit be indexing into the array of height increases for the full cycle.
+    // TODO: Handle the last bit by indexing into the array of height increases for the full cycle.
 
 
     // For test input, looking for 1_514_285 714_288

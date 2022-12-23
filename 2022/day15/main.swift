@@ -8,8 +8,8 @@
 import Foundation
 
 struct Sensor {
-    let location: Location
-    let nearestBeacon: Location
+    let location: Location2D
+    let nearestBeacon: Location2D
 
     // Manhattan "radius" from the sensor location to the beacon
     var excludedRadius: Int {
@@ -20,8 +20,8 @@ struct Sensor {
 let regex = /Sensor at x=([-0-9]+), y=([-0-9]+): closest beacon is at x=([-0-9]+), y=([-0-9]+)/
 let sensors: [Sensor] = Input.lines().map { line in
     let match = try! regex.wholeMatch(in: line)!
-    return Sensor(location: Location(x: Int(match.1)!, y: Int(match.2)!),
-                  nearestBeacon: Location(x: Int(match.3)!, y: Int(match.4)!))
+    return Sensor(location: Location2D(x: Int(match.1)!, y: Int(match.2)!),
+                  nearestBeacon: Location2D(x: Int(match.3)!, y: Int(match.4)!))
 }
 
 func excludedRanges(candidateY: Int, in allowedXRange: ClosedRange<Int>?) -> [ClosedRange<Int>] {

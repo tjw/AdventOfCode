@@ -7,6 +7,8 @@
 
 import Foundation
 
+typealias Location = Location2D
+
 let lines = Input.lines()
 
 var start = Location(x: 0, y: 0)

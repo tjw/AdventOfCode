@@ -7,6 +7,9 @@
 
 import Foundation
 
+typealias Location = Location2D
+typealias HashMap = HashMap2D
+
 let input:[[(Int,Int)]] = Input.lines().map { line in
     line.components(separatedBy: "->").map { item in
         let components = item.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }

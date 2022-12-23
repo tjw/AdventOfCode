@@ -11,7 +11,10 @@ import UniformTypeIdentifiers
 
 // Unlike GridMap, this is infinite and can have negative coordinates
 
-class HashMap<Element> {
+class HashMap2D<Element> {
+
+    typealias Location = Location2D
+    typealias Bounds = Bounds2D
 
     private(set) var elements: [Location:Element]
 

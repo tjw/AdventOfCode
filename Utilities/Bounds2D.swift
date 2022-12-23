@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Bounds {
+struct Bounds2D {
     var x: Int
     var y: Int
     var width: Int

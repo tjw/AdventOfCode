@@ -7,6 +7,7 @@
 
 import Foundation
 
+typealias Location = Location2D
 
 func touching(head: Location, tail: Location) -> Bool {
     let delta = head - tail
