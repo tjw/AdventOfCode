@@ -17,6 +17,17 @@ struct Location3D : Hashable {
         self.y = y
         self.z = z
     }
+    init(tuple: (Int, Int, Int)) {
+        self.x = tuple.0
+        self.y = tuple.1
+        self.z = tuple.2
+    }
+    init(line: String) {
+        let components = line.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines )}
+        self.x = Int(components[0])!
+        self.y = Int(components[1])!
+        self.z = Int(components[2])!
+    }
 
     func manhattanDistance(to other: Self) -> Int {
         return abs(x - other.x) + abs(y - other.y) + abs(z - other.z)

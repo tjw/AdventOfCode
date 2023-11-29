@@ -81,6 +81,7 @@
 		34CF31AB2955857C00094BD4 /* HashMap3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF31AA2955857C00094BD4 /* HashMap3D.swift */; };
 		34CF31AD2955858600094BD4 /* Location3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF31AC2955858600094BD4 /* Location3D.swift */; };
 		34CF31AF2955858D00094BD4 /* Bounds3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF31AE2955858D00094BD4 /* Bounds3D.swift */; };
+		34CF31B02955878E00094BD4 /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
 		34D0928B2942E01000F29B05 /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
 		34D092932942E3E200F29B05 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D092922942E3E200F29B05 /* main.swift */; };
 		34D092982942E3F500F29B05 /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
@@ -1364,6 +1365,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34CF31B02955878E00094BD4 /* Input.swift in Sources */,
 				34CF319D2955828000094BD4 /* main.swift in Sources */,
 				34CF31AD2955858600094BD4 /* Location3D.swift in Sources */,
 				34CF31AB2955857C00094BD4 /* HashMap3D.swift in Sources */,

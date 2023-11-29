@@ -14,4 +14,13 @@ struct Bounds3D {
     var width: Int
     var height: Int
     var depth: Int
+
+    func contains(location: Location3D) -> Bool {
+        return x <= location.x &&
+        x + width >= location.x &&
+        y <= location.y &&
+        y + height >= location.y &&
+        z <= location.z &&
+        z + depth >= location.z
+    }
 }
