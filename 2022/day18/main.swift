@@ -54,7 +54,7 @@ do {
 
                 for dir in Location3D.cardinalDirections {
                     let candidate = next + dir
-                    if visited.contains(candidate) { continue } xxx need to keep track of connected groups that are inside and outside
+                    if visited.contains(candidate) { continue } // xxx need to keep track of connected groups that are inside and outside
 
                     if !bounds.contains(location: next) {
                         // Every visited location can reach the outside, so this location is 'outside'
@@ -86,7 +86,7 @@ do {
 
                 for dir in Location3D.cardinalDirections {
                     let next = candidate + dir
-                    if !bounds.contains(next) {
+                    if !bounds.contains(location: next) {
                         // Every visited location can reach the outside, so this location is 'outside'
                     }
                 }
