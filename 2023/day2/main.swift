@@ -60,4 +60,15 @@ do {
     assert(result == 2369)
 }
 
+do {
+    let mins = games.map { game in
+        let red = game.groups.map(\.red).max()!
+        let green = game.groups.map(\.green).max()!
+        let blue = game.groups.map(\.blue).max()!
+        return Group(red: red, green: green, blue: blue)
+    }
 
+    let result = mins.reduce(0, { $0 + $1.red * $1.green * $1.blue })
+    print("\(result)")
+    assert(result == 66363)
+}
