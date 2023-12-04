@@ -17,3 +17,15 @@ enum Input {
         return String(data: inputData, encoding: .utf8)!.split(separator: "\n", omittingEmptySubsequences: !includeEmpty).map { String($0) }
     }
 }
+
+extension String {
+    var trailingNumber: Int {
+        let digits = self.reversed().prefix(while: \.isNumber).reversed()
+        return Int(String(digits))!
+    }
+
+    func numbers(separatedBy characterSet: CharacterSet = CharacterSet.whitespaces) -> [Int] {
+        let components = self.components(separatedBy: characterSet)
+        return components.compactMap { Int($0) }
+    }
+}
