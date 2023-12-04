@@ -51,6 +51,16 @@ class GridMap<Element> {
         }
     }
 
+    func forEachRow(_ operation: (Int, [Element]) -> Void) {
+        (0..<height).forEach { y in
+            operation(y, elements[y])
+        }
+    }
+
+    func row(y: Int) -> [Element] {
+        elements[y]
+    }
+    
     func expandToInclude(location: Location, content: Element) {
         guard !contains(location: location) else { return }
 
