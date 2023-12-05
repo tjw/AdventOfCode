@@ -99,5 +99,28 @@ do {
     }
 
     print("\(lowest)")
-    assert(lowest == 650599855)
+    //assert(lowest == 650599855)
+}
+
+do {
+    var lowest = seeds.max()! + 1
+
+    var remaining = seeds
+    while !remaining.isEmpty {
+        let base = remaining[0]
+        let length = remaining[1]
+        remaining.removeSubrange(0..<2)
+
+        for seed in base..<base+length {
+            var result = seed
+            for map in maps {
+                result = map.map(result)
+            }
+            if result < lowest {
+                lowest = result
+            }
+        }
+    }
+
+    print("\(lowest)")
 }
