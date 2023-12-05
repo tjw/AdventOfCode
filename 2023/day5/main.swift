@@ -2,29 +2,61 @@ import Foundation
 
 let lines = Input.lines()
 
-struct MapEntry {
-    let destinationStart: Int
-    let sourceStart: Int
-    let length: Int
+struct MapEntry : Comparable {
+    let source: Range<Int>
+    let offset: Int
 
     init(line: String) {
         let numbers = line.numbers()
-        self.destinationStart = numbers[0]
-        self.sourceStart = numbers[1]
-        self.length = numbers[2]
+
+        let destinationStart = numbers[0]
+        let sourceStart = numbers[1]
+        let length = numbers[2]
+
+        self.source = sourceStart ..< sourceStart + length
+        self.offset = destinationStart - sourceStart
     }
 
     func contains(_ value: Int) -> Bool {
-        return value >= sourceStart && value < sourceStart + length
+        source.contains(value)
     }
 
     func map(_ value: Int) -> Int {
-        return (value - sourceStart) + destinationStart
+        value + offset
     }
+
+    func overlaps(_ other: MapEntry) -> Bool {
+        source.overlaps(other.source)
+    }
+
+    // ASSUME: None of the source ranges overlap
+    // Mapping a source range can result in one mapped destination, and one or more unmapped ranges that didn't intersect this entry, but might intersect others.
+
+    struct RangeMapResult {
+        let mapped: Range<Int>?
+        let unmapped: [Range<Int>]
+    }
+
+//    func map(_ range: Range<Int>) -> [Range<Int>] {
+//        var result = [Range<Int>]()
+//
+//        if range.startIndex < sourceStart {
+//            let leadingLength = sourceStart - range.startIndex
+//            result.append(destinationStart + leadingLength ..< destinationStart + leadingLength)
+//        }
+//        abort()
+//    }
+
+    // MARK:- Comparable
+
+    static func < (lhs: MapEntry, rhs: MapEntry) -> Bool {
+        lhs.source.lowerBound < rhs.source.lowerBound
+    }
+
 }
 
 class Map {
-    var entries = [MapEntry]()
+    private(set) var entries = [MapEntry]()
 
     func map(_ value: Int) -> Int {
         for entry in entries {
@@ -34,6 +66,25 @@ class Map {
         }
         return value
     }
+
+    func insert(entry: MapEntry) {
+        entries.insertInSortedOrder(entry)
+    }
+
+    var hasOverlaps: Bool {
+        var a: MapEntry = entries.first!
+        for b in entries.dropFirst() {
+            if a.overlaps(b) {
+                return true
+            }
+            a = b
+        }
+        return false
+    }
+
+//    func map(_ range: Range<Int>) -> [Range<Int>] {
+//        entries.flatMap { $0.map(range) }
+//    }
 }
 
 var seeds = [Int]()
@@ -81,8 +132,12 @@ for line in lines {
         currentMap = humidityToLocation
     } else if !line.isEmpty {
         let entry = MapEntry(line: line)
-        currentMap!.entries.append(entry)
+        currentMap!.insert(entry: entry)
     }
+}
+
+maps.forEach {
+    assert($0.hasOverlaps == false)
 }
 
 do {
@@ -99,9 +154,10 @@ do {
     }
 
     print("\(lowest)")
-    //assert(lowest == 650599855)
+    assert(lowest == 650599855)
 }
 
+/*
 do {
     var lowest = seeds.max()! + 1
 
@@ -111,16 +167,25 @@ do {
         let length = remaining[1]
         remaining.removeSubrange(0..<2)
 
-        for seed in base..<base+length {
-            var result = seed
-            for map in maps {
-                result = map.map(result)
+        let seedRange = base..<base+length
+
+        // Map this one range through each of the maps, at each step possibly producing multiple ranges.
+        var sourceRanges = [seedRange]
+        var destinationRanges: [Range<Int>] = []
+
+        // TODO: An invariant should be that the total length of the source range and dest ranges should be equal
+
+        for map in maps {
+            for source in sourceRanges {
+                let dests = map.map(source)
+                destinationRanges.append(contentsOf: dests)
             }
-            if result < lowest {
-                lowest = result
-            }
+
+            sourceRanges = destinationRanges
+            destinationRanges = []
         }
     }
 
     print("\(lowest)")
 }
+*/
