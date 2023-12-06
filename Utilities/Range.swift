@@ -26,5 +26,18 @@ extension Range where Bound : Comparable {
         }
     }
 
+    // Returns true if this range is completely contained in the other range
+    func contains(_ other: Range) -> Bool {
+        lowerBound <= other.lowerBound && upperBound >= other.upperBound
+    }
+
+}
+
+// Could make this more general if ever needed
+extension Range where Bound == Int {
+
+    func offset(by value: Int) -> Range<Int> {
+        lowerBound + value ..< upperBound + value
+    }
 }
 

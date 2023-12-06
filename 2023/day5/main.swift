@@ -29,8 +29,6 @@ struct MapEntry : Comparable {
         source.overlaps(other.source)
     }
 
-    // ASSUME: None of the source ranges overlap
-    // Mapping a source range can result in one mapped destination, and one or more unmapped ranges that didn't intersect this entry, but might intersect others.
 
     struct RangeMapResult {
         let mapped: Range<Int>?
@@ -82,9 +80,71 @@ class Map {
         return false
     }
 
-//    func map(_ range: Range<Int>) -> [Range<Int>] {
-//        entries.flatMap { $0.map(range) }
-//    }
+    func map(_ range: Range<Int>) -> [Range<Int>] {
+        // Mapping a source range can result in one mapped destination, and one or more unmapped ranges that didn't intersect this entry, but might intersect others. Keep a list of ranges yet to be mapped
+        var unmapped: [Range<Int>].SubSequence = [range]
+        var mapped = [Range<Int>]()
+
+        print("original range \(range)")
+
+        while !unmapped.isEmpty {
+            var range = unmapped.first!
+            print("unmapped range \(range)")
+
+            unmapped = unmapped.dropFirst()
+
+            // TODO: Could use sorted order of map entries to find where to start with binary search
+            // Check each map entry vs the range we have
+            for entry in entries {
+                guard range.overlaps(entry.source) else { continue }
+
+                print("  entry \(entry.source) \(entry.offset)")
+
+                // Check if some of this range is before the map entry. If so, put that portion in the unmapped list and trim it off our working range.
+                if range.lowerBound < entry.source.lowerBound {
+                    let prefix = range.lowerBound ..< entry.source.lowerBound
+                    let trimmed = entry.source.lowerBound ..< range.upperBound
+                    print("    prefix \(prefix), trimmed \(trimmed)")
+                    assert(prefix.count + trimmed.count == range.count)
+                    assert(!trimmed.isEmpty) // Otherwise the two ranges shouldn't have overlapped
+
+                    unmapped.append(prefix)
+                    range = trimmed
+                }
+
+                // Likewise, check if some of this range is after the map entry.
+                if range.upperBound > entry.source.upperBound {
+                    let suffix = entry.source.upperBound ..< range.upperBound
+                    let trimmed = range.lowerBound ..< entry.source.upperBound
+                    print("    trimmed \(trimmed), suffix \(suffix)")
+                    assert(trimmed.count + suffix.count == range.count)
+                    assert(!trimmed.isEmpty) // Otherwise the two ranges shouldn't have overlapped
+
+                    unmapped.append(suffix)
+                    range = trimmed
+                }
+
+                // If this range is entirely contained in the entry's source range, it is entirely used up and no further processing of entries is needed
+                if entry.source.contains(range) {
+                    print("    contained \(range)")
+                    mapped.append(range.offset(by: entry.offset))
+                    range = range.lowerBound ..< range.lowerBound // Mark as empty to signal it's all been handled
+                    break
+                }
+
+                fatalError("finish")
+            }
+
+            // If there is any remaining range, it wasn't mapped by any entry and so maps to its current value
+            if !range.isEmpty {
+                print("    no entry \(range)")
+                mapped.append(range)
+            }
+        }
+
+        assert(range.count == mapped.reduce(0, { $0 + $1.count }))
+        return mapped
+    }
 }
 
 var seeds = [Int]()
@@ -157,7 +217,6 @@ do {
     assert(lowest == 650599855)
 }
 
-/*
 do {
     var lowest = seeds.max()! + 1
 
@@ -184,8 +243,10 @@ do {
             sourceRanges = destinationRanges
             destinationRanges = []
         }
+
+        lowest = min(lowest, (sourceRanges.map { $0.lowerBound }).min()!)
     }
 
     print("\(lowest)")
+    // 3859706370 too high
 }
-*/
