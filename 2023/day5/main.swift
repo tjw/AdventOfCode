@@ -17,14 +17,6 @@ struct MapEntry : Comparable {
         self.offset = destinationStart - sourceStart
     }
 
-    func contains(_ value: Int) -> Bool {
-        source.contains(value)
-    }
-
-    func map(_ value: Int) -> Int {
-        value + offset
-    }
-
     func overlaps(_ other: MapEntry) -> Bool {
         source.overlaps(other.source)
     }
@@ -39,15 +31,6 @@ struct MapEntry : Comparable {
 
 class Map {
     private(set) var entries = [MapEntry]()
-
-    func map(_ value: Int) -> Int {
-        for entry in entries {
-            if entry.contains(value) {
-                return entry.map(value)
-            }
-        }
-        return value
-    }
 
     func insert(entry: MapEntry) {
         entries.insertInSortedOrder(entry)
@@ -172,26 +155,8 @@ maps.forEach {
     assert($0.hasOverlaps == false)
 }
 
-do {
-    var lowest = seeds.max()! + 1
-
-    for seed in seeds {
-        var result = seed
-        for map in maps {
-            result = map.map(result)
-        }
-        if result < lowest {
-            lowest = result
-        }
-    }
-
-    print("\(lowest)")
-    assert(lowest == 650599855)
-}
-
-do {
-    // Start with the seed list as ranges
-    var sourceRanges = seeds.ranges
+func map(_ ranges: [Range<Int>]) -> [Range<Int>] {
+    var sourceRanges = ranges
 
     for map in maps {
         let destinationRanges = map.map(sourceRanges)
@@ -201,7 +166,26 @@ do {
         sourceRanges = destinationRanges
     }
 
-    let lowest = (sourceRanges.map { $0.lowerBound }).min()!
+    return sourceRanges
+}
+
+do {
+    // Convert seed indexes to ranges
+    let sourceRanges = seeds.map { $0 ..< $0 + 1 }
+    let destRanges = map(sourceRanges)
+
+    let lowest = (destRanges.map { $0.lowerBound }).min()!
+
+    print("\(lowest)")
+    assert(lowest == 650599855)
+}
+
+do {
+    // Start with the seed list as ranges
+    var sourceRanges = seeds.ranges
+    let destRanges = map(sourceRanges)
+
+    let lowest = (destRanges.map { $0.lowerBound }).min()!
 
     print("\(lowest)")
     assert(lowest == 1240035)
