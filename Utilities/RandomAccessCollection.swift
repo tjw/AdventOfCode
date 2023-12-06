@@ -42,5 +42,24 @@ extension Array where Element : Comparable {
         let index = insertionIndex(element, isOrderedBefore: { $0 < $1 })
         insert(element, at: index)
     }
-    
+
+}
+
+extension Array where Element : AdditiveArithmetic & Comparable {
+
+    // Assumes an even number of base, count pairs
+    var ranges: [Range<Element>] {
+        var remaining: SubSequence = self[...]
+        var result = [Range<Element>]()
+
+        while !remaining.isEmpty {
+            let lower = remaining.first!; remaining = remaining.dropFirst()
+            let count = remaining.first!; remaining = remaining.dropFirst()
+
+            result.append(lower ..< lower + count)
+        }
+
+        return result
+    }
+
 }

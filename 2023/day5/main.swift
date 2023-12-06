@@ -80,12 +80,12 @@ class Map {
         return false
     }
 
-    func map(_ range: Range<Int>) -> [Range<Int>] {
+    func map(_ ranges: [Range<Int>]) -> [Range<Int>] {
         // Mapping a source range can result in one mapped destination, and one or more unmapped ranges that didn't intersect this entry, but might intersect others. Keep a list of ranges yet to be mapped
-        var unmapped: [Range<Int>].SubSequence = [range]
+        var unmapped: [Range<Int>].SubSequence = ranges[...]
         var mapped = [Range<Int>]()
 
-        print("original range \(range)")
+        print("original ranges \(ranges)")
 
         while !unmapped.isEmpty {
             var range = unmapped.first!
@@ -142,7 +142,7 @@ class Map {
             }
         }
 
-        assert(range.count == mapped.reduce(0, { $0 + $1.count }))
+        assert(ranges.reduce(0, { $0 + $1.count }) == mapped.reduce(0, { $0 + $1.count }))
         return mapped
     }
 }
@@ -220,33 +220,19 @@ do {
 do {
     var lowest = seeds.max()! + 1
 
-    var remaining = seeds
-    while !remaining.isEmpty {
-        let base = remaining[0]
-        let length = remaining[1]
-        remaining.removeSubrange(0..<2)
+    // Start with the seed list as ranges
+    var sourceRanges = seeds.ranges
 
-        let seedRange = base..<base+length
+    for map in maps {
+        let destinationRanges = map.map(sourceRanges)
 
-        // Map this one range through each of the maps, at each step possibly producing multiple ranges.
-        var sourceRanges = [seedRange]
-        var destinationRanges: [Range<Int>] = []
-
-        // TODO: An invariant should be that the total length of the source range and dest ranges should be equal
-
-        for map in maps {
-            for source in sourceRanges {
-                let dests = map.map(source)
-                destinationRanges.append(contentsOf: dests)
-            }
-
-            sourceRanges = destinationRanges
-            destinationRanges = []
-        }
-
-        lowest = min(lowest, (sourceRanges.map { $0.lowerBound }).min()!)
+        // The total length of the source range and dest ranges should be equal
+        assert(destinationRanges.reduce(0, { $0 + $1.count }) == sourceRanges.reduce(0, { $0 + $1.count }))
+        sourceRanges = destinationRanges
     }
 
+    lowest = min(lowest, (sourceRanges.map { $0.lowerBound }).min()!)
+
     print("\(lowest)")
-    // 3859706370 too high
+    assert(lowest == 1240035)
 }
