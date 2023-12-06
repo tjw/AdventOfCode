@@ -63,3 +63,12 @@ extension Array where Element : AdditiveArithmetic & Comparable {
     }
 
 }
+
+// Might be nice to extend this to non-Int values
+extension Collection where Element == Range<Int> {
+
+    var totalCount: Int {
+        reduce(0, { $0 + $1.count })
+    }
+
+}

@@ -142,7 +142,7 @@ class Map {
             }
         }
 
-        assert(ranges.reduce(0, { $0 + $1.count }) == mapped.reduce(0, { $0 + $1.count }))
+        assert(ranges.totalCount == mapped.totalCount)
         return mapped
     }
 }
@@ -227,7 +227,7 @@ do {
         let destinationRanges = map.map(sourceRanges)
 
         // The total length of the source range and dest ranges should be equal
-        assert(destinationRanges.reduce(0, { $0 + $1.count }) == sourceRanges.reduce(0, { $0 + $1.count }))
+        assert(destinationRanges.totalCount == sourceRanges.totalCount)
         sourceRanges = destinationRanges
     }
 
