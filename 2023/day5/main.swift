@@ -124,15 +124,13 @@ class Map {
                     range = trimmed
                 }
 
-                // If this range is entirely contained in the entry's source range, it is entirely used up and no further processing of entries is needed
-                if entry.source.contains(range) {
-                    print("    contained \(range)")
-                    mapped.append(range.offset(by: entry.offset))
-                    range = range.lowerBound ..< range.lowerBound // Mark as empty to signal it's all been handled
-                    break
-                }
+                // The remaining range should be entirely contained in the entry's source range, and thus entirely used up and no further processing of entries is needed
+                assert(entry.source.contains(range))
 
-                fatalError("finish")
+                print("    contained \(range)")
+                mapped.append(range.offset(by: entry.offset))
+                range = range.lowerBound ..< range.lowerBound // Mark as empty to signal it's all been handled
+                break
             }
 
             // If there is any remaining range, it wasn't mapped by any entry and so maps to its current value
