@@ -29,22 +29,6 @@ struct MapEntry : Comparable {
         source.overlaps(other.source)
     }
 
-
-    struct RangeMapResult {
-        let mapped: Range<Int>?
-        let unmapped: [Range<Int>]
-    }
-
-//    func map(_ range: Range<Int>) -> [Range<Int>] {
-//        var result = [Range<Int>]()
-//
-//        if range.startIndex < sourceStart {
-//            let leadingLength = sourceStart - range.startIndex
-//            result.append(destinationStart + leadingLength ..< destinationStart + leadingLength)
-//        }
-//        abort()
-//    }
-
     // MARK:- Comparable
 
     static func < (lhs: MapEntry, rhs: MapEntry) -> Bool {
@@ -216,8 +200,6 @@ do {
 }
 
 do {
-    var lowest = seeds.max()! + 1
-
     // Start with the seed list as ranges
     var sourceRanges = seeds.ranges
 
@@ -229,7 +211,7 @@ do {
         sourceRanges = destinationRanges
     }
 
-    lowest = min(lowest, (sourceRanges.map { $0.lowerBound }).min()!)
+    let lowest = (sourceRanges.map { $0.lowerBound }).min()!
 
     print("\(lowest)")
     assert(lowest == 1240035)
