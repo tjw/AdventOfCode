@@ -17,6 +17,24 @@ class GridMap<Element> {
     var width: Int
     var height: Int
 
+    convenience init(lines: [String], transform: (Location2D, Character) -> Element) {
+        var rows = [[Element]]()
+
+        for y in 0..<lines.count {
+            var elements = [Element]()
+            var line = lines[y][...]
+            for x in 0..<line.count {
+                let ch = line.first!
+                line = line.dropFirst()
+                let element = transform(Location2D(x: x, y: y), ch)
+                elements.append(element)
+            }
+            rows.append(elements)
+        }
+
+        self.init(elements: rows)
+    }
+
     init(elements: [[Element]]) {
         self.elements = elements
         self.height = elements.count

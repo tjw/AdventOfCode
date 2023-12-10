@@ -7,20 +7,17 @@ struct Race {
     let record: Int
 
     var numberOfWins: Int {
-//        print("race \(self)")
         var result = 0
 
         for hold in 0...duration {
             let speed = hold
 
             let distance = speed * (duration - hold)
-//            print("  duration: \(duration), speed \(speed), distance \(distance)")
             if distance > record {
                 result += 1
             }
         }
 
-//        print("  numberOfWins \(result)")
         return result
     }
 }
