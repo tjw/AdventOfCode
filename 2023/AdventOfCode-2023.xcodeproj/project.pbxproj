@@ -51,6 +51,8 @@
 		34CBF6D32B257EDF00F2761A /* Location2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF30D12947025300094BD4 /* Location2D.swift */; };
 		34CBF6D42B257F7900F2761A /* RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3160294C3AD500094BD4 /* RGB.swift */; };
 		34CBF6D52B25800200F2761A /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
+		34CBF6D62B2588D700F2761A /* HashMap2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3163294C3CAF00094BD4 /* HashMap2D.swift */; };
+		34CBF6D72B25892400F2761A /* Bounds2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3165294C3E6D00094BD4 /* Bounds2D.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -813,7 +815,9 @@
 				34CBF6D52B25800200F2761A /* Input.swift in Sources */,
 				34CBF6D22B257E7D00F2761A /* GridMap.swift in Sources */,
 				34CBF6CD2B257CCF00F2761A /* main.swift in Sources */,
+				34CBF6D72B25892400F2761A /* Bounds2D.swift in Sources */,
 				34CBF6D32B257EDF00F2761A /* Location2D.swift in Sources */,
+				34CBF6D62B2588D700F2761A /* HashMap2D.swift in Sources */,
 				34CBF6D42B257F7900F2761A /* RGB.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
