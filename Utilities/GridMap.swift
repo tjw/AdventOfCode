@@ -76,9 +76,33 @@ class GridMap<Element> {
     }
 
     func row(y: Int) -> [Element] {
-        elements[y]
+        assert(y < height)
+        return elements[y]
     }
     
+    func insert(row: [Element], at y: Int) {
+        assert(row.count == width)
+        assert(y <= height)
+
+        elements.insert(row, at: y)
+        height += 1
+    }
+
+    func column(x: Int) -> [Element] {
+        assert(x < width)
+        return elements.compactMap { $0[x] }
+    }
+
+    func insert(column: [Element], at x: Int) {
+        assert(column.count == height)
+        assert(x <= width)
+
+        for y in 0..<height {
+            elements[y].insert(column[y], at: x)
+        }
+        width += 1
+    }
+
     func expandToInclude(location: Location, content: Element) {
         guard !contains(location: location) else { return }
 
