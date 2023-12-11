@@ -65,6 +65,10 @@ class HashMap2D<Element> {
         }
     }
 
+    func removeAll() {
+        elements.removeAll()
+    }
+
     func writeImage(prefix: String, number: Int, flipped: Bool, makePixel: (Element) -> RGB) {
         let bounds = self.bounds
 

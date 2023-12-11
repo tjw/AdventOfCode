@@ -55,9 +55,10 @@
 		34CBF6D72B25892400F2761A /* Bounds2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3165294C3E6D00094BD4 /* Bounds2D.swift */; };
 		34CBF6DF2B26CD0100F2761A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CBF6DE2B26CD0100F2761A /* main.swift */; };
 		34CBF6E32B26CD0700F2761A /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
-		34CBF6E52B26CFCB00F2761A /* GridMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF30D42947040400094BD4 /* GridMap.swift */; };
-		34CBF6E62B26CFD200F2761A /* RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3160294C3AD500094BD4 /* RGB.swift */; };
 		34CBF6E72B26CFD600F2761A /* Location2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF30D12947025300094BD4 /* Location2D.swift */; };
+		34CBF6E82B26D52300F2761A /* HashMap2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3163294C3CAF00094BD4 /* HashMap2D.swift */; };
+		34CBF6E92B26D54B00F2761A /* Bounds2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3165294C3E6D00094BD4 /* Bounds2D.swift */; };
+		34CBF6EA2B26D9A400F2761A /* RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3160294C3AD500094BD4 /* RGB.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -883,10 +884,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				34CBF6E32B26CD0700F2761A /* Input.swift in Sources */,
-				34CBF6E52B26CFCB00F2761A /* GridMap.swift in Sources */,
+				34CBF6E92B26D54B00F2761A /* Bounds2D.swift in Sources */,
 				34CBF6E72B26CFD600F2761A /* Location2D.swift in Sources */,
+				34CBF6EA2B26D9A400F2761A /* RGB.swift in Sources */,
 				34CBF6DF2B26CD0100F2761A /* main.swift in Sources */,
-				34CBF6E62B26CFD200F2761A /* RGB.swift in Sources */,
+				34CBF6E82B26D52300F2761A /* HashMap2D.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
