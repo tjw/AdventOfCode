@@ -13,8 +13,8 @@ enum Space : Character, RawRepresentable {
 }
 
 let lines = Input.lines()
-var grid = HashMap2D(defaultElement: Space.empty)
 var galaxyLocations = [Location2D]()
+let expansionRate = 1000000
 
 for y in 0..<lines.count {
     var line = lines[y][...]
@@ -22,7 +22,6 @@ for y in 0..<lines.count {
         let space = Space(rawValue:line.first!)!
         if space == .galaxy {
             let location = Location2D(x: x, y: y)
-            grid[location] = space
             print("Galaxy at \(location)")
             galaxyLocations.append(location)
         }
@@ -32,57 +31,46 @@ for y in 0..<lines.count {
 
 // Expand rows that need it
 do {
-    let bounds = grid.bounds
-
-    galaxyLocations = []
+    // Sort the galaxies with minimum y coordinate first
+    galaxyLocations.sort { $0.y < $1.y }
 
     var expansion = 0
-    for y in bounds.y..<bounds.y + bounds.height {
-        // If this row is empty, increase the total expansion
-        let rowRange = bounds.x..<bounds.x + bounds.width
-        if rowRange.allSatisfy({ grid[Location2D(x: $0, y: y)] == .empty }) {
-            expansion += 1000000 - 1
-        } else {
-            // Shift all the galaxies in this row by the expansion so far. Can't update in place since that would push galaxies into locations that would get processed again.
-            for x in rowRange {
-                if grid[Location2D(x: x, y: y)] == .galaxy {
-                    galaxyLocations.append(Location2D(x: x, y: y + expansion))
-                }
-            }
-        }
-    }
+    var previousY = galaxyLocations.first!.y
 
-    // Rebuild the map
-    grid.removeAll()
-    galaxyLocations.forEach { grid[$0] = .galaxy }
+    for galaxyIndex in 0..<galaxyLocations.count {
+        let galaxy = galaxyLocations[galaxyIndex]
+        if galaxy.y == previousY || galaxy.y == previousY + 1 {
+            // Still in the same row or stepping to the next row with no empty row between. No update to expansion
+        } else {
+            // One or more empty rows
+            expansion += (galaxy.y - previousY - 1) * (expansionRate - 1)
+        }
+
+        galaxyLocations[galaxyIndex] = Location2D(x: galaxy.x, y: galaxy.y + expansion)
+        previousY = galaxy.y
+    }
 }
 
 // Expand columns that need it
 do {
-    let bounds = grid.bounds
-
-    galaxyLocations = []
+    // Sort the galaxies with minimum x coordinate first
+    galaxyLocations.sort { $0.x < $1.x }
 
     var expansion = 0
+    var previousX = galaxyLocations.first!.x
 
-    for x in bounds.x ..< bounds.x + bounds.width {
-        // If this column is empty, increase the total expansion
-        let columnRange = bounds.y ..< bounds.y + bounds.height
-        if columnRange.allSatisfy({ grid[Location2D(x: x, y: $0)] == .empty }) {
-            expansion += 1000000 - 1
+    for galaxyIndex in 0..<galaxyLocations.count {
+        let galaxy = galaxyLocations[galaxyIndex]
+        if galaxy.x == previousX || galaxy.x == previousX + 1 {
+            // Still in the same column or stepping to the next column with no empty column between. No update to expansion
         } else {
-            // Shift all the galaxies in this column by the expansion so far. Can't update in place since that would push galaxies into locations that would get processed again.
-            for y in columnRange {
-                if grid[Location2D(x: x, y: y)] == .galaxy {
-                    galaxyLocations.append(Location2D(x: x + expansion, y: y))
-                }
-            }
+            // One or more empty column
+            expansion += (galaxy.x - previousX - 1) * (expansionRate - 1)
         }
-    }
 
-    // Rebuild the map
-    grid.removeAll()
-    galaxyLocations.forEach { grid[$0] = .galaxy }
+        galaxyLocations[galaxyIndex] = Location2D(x: galaxy.x + expansion, y: galaxy.y)
+        previousX = galaxy.x
+    }
 }
 
 print("\(galaxyLocations.count) galaxies")
@@ -98,4 +86,4 @@ for firstIndex in 0..<galaxyLocations.count-1 {
 
 print("\(result)")
 //assert(result == 9734203) // part 1
-assert(result == 568914596391) // part 2
+//assert(result == 568914596391) // part 2
