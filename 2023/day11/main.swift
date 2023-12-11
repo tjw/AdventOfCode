@@ -41,7 +41,7 @@ do {
         // If this row is empty, increase the total expansion
         let rowRange = bounds.x..<bounds.x + bounds.width
         if rowRange.allSatisfy({ grid[Location2D(x: $0, y: y)] == .empty }) {
-            expansion += 1
+            expansion += 1000000 - 1
         } else {
             // Shift all the galaxies in this row by the expansion so far. Can't update in place since that would push galaxies into locations that would get processed again.
             for x in rowRange {
@@ -69,7 +69,7 @@ do {
         // If this column is empty, increase the total expansion
         let columnRange = bounds.y ..< bounds.y + bounds.height
         if columnRange.allSatisfy({ grid[Location2D(x: x, y: $0)] == .empty }) {
-            expansion += 1
+            expansion += 1000000 - 1
         } else {
             // Shift all the galaxies in this column by the expansion so far. Can't update in place since that would push galaxies into locations that would get processed again.
             for y in columnRange {
@@ -85,11 +85,6 @@ do {
     galaxyLocations.forEach { grid[$0] = .galaxy }
 }
 
-
-//grid.forEachRow { _, row in
-//    print(row.map { (space: Space) in String(space.rawValue) } .joined() )
-//}
-
 print("\(galaxyLocations.count) galaxies")
 
 var result = 0
@@ -102,4 +97,5 @@ for firstIndex in 0..<galaxyLocations.count-1 {
 }
 
 print("\(result)")
-//assert(result == 9734203)
+//assert(result == 9734203) // part 1
+assert(result == 568914596391) // part 2
