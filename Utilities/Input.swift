@@ -29,3 +29,7 @@ extension String {
         return components.compactMap { Int($0) }
     }
 }
+
+func indent(_ level: Int) -> String {
+    String(repeating: " ", count: 2*level)
+}
