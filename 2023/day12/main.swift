@@ -15,45 +15,53 @@ enum Condition : Character, RawRepresentable {
     case damaged = "#"
 }
 
-func pack(level: Int, conditions: Array<Condition>.SubSequence, damagedLengths: Array<Int>.SubSequence) -> Int {
-    print("\(indent(level))\((conditions.map { String($0.rawValue) }).joined()) \(damagedLengths)")
+func pack(length: Int, prefix: String, conditions: Array<Condition>.SubSequence, damagedLengths: Array<Int>.SubSequence) -> [String] {
+    // Recursion shouldn't change the total length of the possible pending output and remaining conditions
+    assert(prefix.count + conditions.count == length)
+
+    print("\(prefix) -- \((conditions.map { String($0.rawValue) }).joined()) \(damagedLengths)")
 
     if conditions.isEmpty {
         if damagedLengths.isEmpty {
-            print("\(indent(level + 1))at end -> 1")
-            return 1
+            print("\(indent(prefix.count * 2 + 1))at end -> 1")
+            return [prefix]
         } else {
-            print("\(indent(level + 1))expecting more damage -> 0")
-            return 0
+            print("\(indent(prefix.count * 2 + 1))expecting more damage -> 0")
+            return []
         }
     }
 
-    switch conditions.first! {
+    let current = conditions.first!
+    switch current {
     case .operational:
         // Can't pack any damaged length into an operational spot
-        return pack(level: level + 1, conditions: conditions.dropFirst(), damagedLengths: damagedLengths)
+        return pack(length: length, prefix: prefix + String(current.rawValue), conditions: conditions.dropFirst(), damagedLengths: damagedLengths)
     case .damaged:
         // If this is guaranteed damaged, need the first damage range to consume it
         guard let firstLength = damagedLengths.first else {
-            print("\(indent(level + 1))Have damage in the conditions, but no lengths left -> 0")
-            return 0
+            print("\(indent(prefix.count * 2 + 1))Have damage in the conditions, but no lengths left -> 0")
+            return []
         }
         if firstLength == 1 {
             // Entirely consumed. Need the next condition to able to be mapped to operational otherwise it'd be merged
             let remaining = conditions.dropFirst()
-            guard remaining.first != .damaged else {
-                print("\(indent(level + 1))XXX damage length of 1, but next is \(remaining.first!) -> 0")
-                return 0
+            guard let separator = remaining.first else {
+                // No trailing separator, but the end of the conditions is an implicit separator
+                return [prefix + String(Condition.damaged.rawValue)]
             }
-            return pack(level: level + 1, conditions: remaining.dropFirst(), damagedLengths: damagedLengths.dropFirst())
+            guard separator != .damaged else {
+                print("\(indent(prefix.count * 2 + 1))XXX damage length of 1, but next is \(separator) -> 0")
+                return []
+            }
+            return pack(length: length, prefix: prefix + String(Condition.damaged.rawValue) + String(Condition.operational.rawValue), conditions: remaining.dropFirst(), damagedLengths: damagedLengths.dropFirst())
         } else {
             // Used up one unit of the first damaged length
-            return pack(level: level + 1, conditions: conditions.dropFirst(), damagedLengths: [firstLength - 1] + damagedLengths.dropFirst())
+            return pack(length: length, prefix: prefix + String(Condition.damaged.rawValue), conditions: conditions.dropFirst(), damagedLengths: [firstLength - 1] + damagedLengths.dropFirst())
         }
     case .unknown:
         // Can either assume this spot is damaged or not
-        let damagedCount = pack(level: level + 1, conditions: [.damaged] + conditions.dropFirst(), damagedLengths: damagedLengths)
-        let undamagedCount = pack(level: level + 1, conditions: [.operational] + conditions.dropFirst(), damagedLengths: damagedLengths)
+        let damagedCount = pack(length: length, prefix: prefix, conditions: [.damaged] + conditions.dropFirst(), damagedLengths: damagedLengths)
+        let undamagedCount = pack(length: length, prefix: prefix, conditions: [.operational] + conditions.dropFirst(), damagedLengths: damagedLengths)
 
         return undamagedCount + damagedCount
     }
@@ -67,9 +75,12 @@ for line in lines {
     let conditions = components[0].map { Condition(rawValue: $0)! }
     let damagedLengths = String(components[1]).numbers(separatedBy: CharacterSet(charactersIn: ","))
 
-    let count = pack(level: 0, conditions: conditions[...], damagedLengths: damagedLengths[...])
-    print("~~~~ \(line) -> \(count)")
-    result += count
+    let options = pack(length: conditions.count, prefix: "", conditions: conditions[...], damagedLengths: damagedLengths[...])
+    print("~~~~ \(line) \(options.count):")
+    options.forEach { print($0) }
+    print("~~~~")
+
+    result += options.count
 }
 
 print("\(result)")
