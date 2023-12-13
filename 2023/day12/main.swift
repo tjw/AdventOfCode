@@ -7,6 +7,49 @@
 
 import Foundation
 
+/*
+
+ In Slack, Greg says:
+
+ Imagine you are just checking a string of springs to see if it matches the list of group numbers. As you read through the string representation you are updating (1) which group you are in, and (2) how many damaged springs you’ve already seen in the current group.
+
+
+ greg
+   13 hours ago
+ So when you see a # you check: Have I already seen all the groups? if so, bzzt. Otherwise add one to the number of damaged springs I’ve seen in the current group. Is that more than there are supposed to be? If so, bzzt.
+
+
+ greg
+   13 hours ago
+ When you see a . you check: Am I already in the middle of reading a group (damaged springs > 0)? If so, end that group and move on to the next. (increment which group you are in and reset number seen to zero.) If it wasn’t the right count for the ended group, bzzt. (edited)
+
+
+ greg
+   13 hours ago
+ Finally, when you get to the end of the string: Am I in the middle of reading a group? Do just like with .. Then, have I accounted for all groups? If not, bzzt.
+
+
+ greg
+   13 hours ago
+ You can arrange these all as func checkHash(CheckingState) -> CheckingState?, func checkDot(CheckingState) -> CheckingState? , func checkEnding(CheckingState) -> CheckingState? (edited)
+
+
+ greg
+   13 hours ago
+ Now, instead of taking a single CheckingState, make them take an Array of possibilities and do the same return-the-next-CheckingState-if-possible but wrap the logic in a compactMap so you throw away all now impossible possibilities and are left with the new checking states.
+
+
+ greg
+   13 hours ago
+ Then checkQuestionMark() just becomes return checkDot(possibilities) + checkHash(possibilities) (edited)
+
+
+ greg
+   13 hours ago
+ In part 2, much longer strings and lists of groups, you need to add combining identical States (because there are lots of ways to get to the same one) and keeping counts of how many copies of that state you currently have.
+
+*/
+
 let lines = Input.lines()
 
 enum Condition : Character, RawRepresentable {
