@@ -18,17 +18,14 @@ enum Condition : Character, RawRepresentable {
 func pack(level: Int, conditions: Array<Condition>.SubSequence, damagedLengths: Array<Int>.SubSequence) -> Int {
     print("\(indent(level))\((conditions.map { String($0.rawValue) }).joined()) \(damagedLengths)")
 
-    if damagedLengths.isEmpty {
-        // If there are no more known damages, then we need all remaining conditions to be able map to operational.
-        let result = conditions.allSatisfy({ $0 != .damaged }) ? 1 : 0
-        print("\(indent(level + 1))XXX no more damage expected -> \(result)")
-        return result
-    }
     if conditions.isEmpty {
-        // If there are no further conditions, we have to be out of damages
-        let result = damagedLengths.isEmpty ? 1 : 0
-        print("\(indent(level + 1))XXX out of conditions, should be no more damage -> \(result)")
-        return result
+        if damagedLengths.isEmpty {
+            print("\(indent(level + 1))at end -> 1")
+            return 1
+        } else {
+            print("\(indent(level + 1))expecting more damage -> 0")
+            return 0
+        }
     }
 
     switch conditions.first! {
@@ -36,8 +33,11 @@ func pack(level: Int, conditions: Array<Condition>.SubSequence, damagedLengths: 
         // Can't pack any damaged length into an operational spot
         return pack(level: level + 1, conditions: conditions.dropFirst(), damagedLengths: damagedLengths)
     case .damaged:
-        // If this is guaranteed damaged, need the first damage range to use it up
-        let firstLength = damagedLengths.first!
+        // If this is guaranteed damaged, need the first damage range to consume it
+        guard let firstLength = damagedLengths.first else {
+            print("\(indent(level + 1))Have damage in the conditions, but no lengths left -> 0")
+            return 0
+        }
         if firstLength == 1 {
             // Entirely consumed. Need the next condition to able to be mapped to operational otherwise it'd be merged
             let remaining = conditions.dropFirst()
@@ -47,12 +47,13 @@ func pack(level: Int, conditions: Array<Condition>.SubSequence, damagedLengths: 
             }
             return pack(level: level + 1, conditions: remaining.dropFirst(), damagedLengths: damagedLengths.dropFirst())
         } else {
+            // Used up one unit of the first damaged length
             return pack(level: level + 1, conditions: conditions.dropFirst(), damagedLengths: [firstLength - 1] + damagedLengths.dropFirst())
         }
     case .unknown:
-        // Can either assume this spot is undamaged or it is.
-        let undamagedCount = pack(level: level + 1, conditions: [.operational] + conditions.dropFirst(), damagedLengths: damagedLengths)
+        // Can either assume this spot is damaged or not
         let damagedCount = pack(level: level + 1, conditions: [.damaged] + conditions.dropFirst(), damagedLengths: damagedLengths)
+        let undamagedCount = pack(level: level + 1, conditions: [.operational] + conditions.dropFirst(), damagedLengths: damagedLengths)
 
         return undamagedCount + damagedCount
     }
@@ -72,3 +73,4 @@ for line in lines {
 }
 
 print("\(result)")
+// 114033 too high with case that failed on test input
