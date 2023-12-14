@@ -53,6 +53,9 @@
 		343734D12B22E881004CD750 /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
 		3486BC032B2AC142004C3B0B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3486BC022B2AC142004C3B0B /* main.swift */; };
 		3486BC082B2AC163004C3B0B /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
+		3486BC092B2AC42C004C3B0B /* Location2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF30D12947025300094BD4 /* Location2D.swift */; };
+		3486BC0A2B2AC42C004C3B0B /* RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3160294C3AD500094BD4 /* RGB.swift */; };
+		3486BC0B2B2AC42C004C3B0B /* GridMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF30D42947040400094BD4 /* GridMap.swift */; };
 		34CBF6CD2B257CCF00F2761A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CBF6CC2B257CCF00F2761A /* main.swift */; };
 		34CBF6D22B257E7D00F2761A /* GridMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF30D42947040400094BD4 /* GridMap.swift */; };
 		34CBF6D32B257EDF00F2761A /* Location2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF30D12947025300094BD4 /* Location2D.swift */; };
@@ -1045,6 +1048,9 @@
 			files = (
 				3486BC082B2AC163004C3B0B /* Input.swift in Sources */,
 				3486BC032B2AC142004C3B0B /* main.swift in Sources */,
+				3486BC0B2B2AC42C004C3B0B /* GridMap.swift in Sources */,
+				3486BC092B2AC42C004C3B0B /* Location2D.swift in Sources */,
+				3486BC0A2B2AC42C004C3B0B /* RGB.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
