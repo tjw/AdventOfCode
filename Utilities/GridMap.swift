@@ -151,3 +151,17 @@ class GridMap<Element> {
         CGImageDestinationFinalize(dest)
     }
 }
+
+protocol GridCharacter {
+    var character: Character { get }
+}
+
+extension GridMap where Element : GridCharacter {
+
+    var stringRepresentation: String {
+        elements.map { row in
+            String(row.map(\.character))
+        }.joined(separator: "\n")
+    }
+}
+
