@@ -43,5 +43,7 @@ struct Location2D : Hashable {
     static var up = Self(x: 0, y: 1)
     static var down = Self(x: 0, y: -1)
 
+    static var zero = Self(x: 0, y: 0)
+    
     static var cardinalDirections = [left, right, up, down]
 }
