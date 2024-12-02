@@ -7,7 +7,7 @@
 import Foundation
 
 enum Input {
-    static func lines(includeEmpty: Bool = false, file: String = #file) -> [String] {
+    static func lines(includeEmpty: Bool = false, file: String = #filePath) -> [String] {
         let processName = ProcessInfo().processName
         let source = URL(fileURLWithPath: file)
         let base = source.deletingLastPathComponent().deletingLastPathComponent()
@@ -27,6 +27,12 @@ extension String {
     func numbers(separatedBy characterSet: CharacterSet = CharacterSet.whitespaces) -> [Int] {
         let components = self.components(separatedBy: characterSet)
         return components.compactMap { Int($0) }
+    }
+}
+
+extension Array where Element == String {
+    func numbers(separatedBy characterSet: CharacterSet = CharacterSet.whitespaces) -> [[Int]] {
+        self.map { $0.numbers(separatedBy: characterSet) }
     }
 }
 
