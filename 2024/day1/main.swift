@@ -13,6 +13,7 @@ do {
         return partial + dist
     })
     print("\(total)")
+    assert(total == 1319616)
 }
 
 // part 2
@@ -26,4 +27,5 @@ do {
         $0 + $1 * (counts[$1] ?? 0)
     })
     print("\(total)")
+    assert(total == 27267728)
 }
