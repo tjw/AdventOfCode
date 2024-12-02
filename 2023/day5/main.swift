@@ -182,7 +182,7 @@ do {
 
 do {
     // Start with the seed list as ranges
-    var sourceRanges = seeds.ranges
+    let sourceRanges = seeds.ranges
     let destRanges = map(sourceRanges)
 
     let lowest = (destRanges.map { $0.lowerBound }).min()!

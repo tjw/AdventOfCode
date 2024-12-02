@@ -63,7 +63,7 @@ let map = GridMap<Pipe?>(lines: lines) { location, ch in
     fatalError("Unknown map character")
 }
 
-print("start \(start)")
+print("start \(start!)")
 
 var steps = 0
 var location = start!
