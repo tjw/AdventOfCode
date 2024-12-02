@@ -52,6 +52,7 @@ enum TileType : GridCharacter, Hashable {
 let map = GridMap(lines: lines) { _, ch in TileType(character: ch) }
 print(map.stringRepresentation)
 
+@MainActor
 struct Beam : Hashable {
     let position: Location2D
     let direction: Location2D
@@ -120,6 +121,7 @@ struct Beam : Hashable {
     }
 }
 
+@MainActor
 func energizedCount(from startingBeam: Beam) -> Int {
     var beams = [startingBeam]
 

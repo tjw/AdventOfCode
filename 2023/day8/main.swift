@@ -32,6 +32,7 @@ for line in lines.dropFirst() {
     nodes[name] = node
 }
 
+@MainActor
 func traverse(from startingLocation: String, endOnAllZs: Bool) -> Int {
     var location = startingLocation
     var steps = 0

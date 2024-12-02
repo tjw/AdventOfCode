@@ -38,12 +38,12 @@ struct Location2D : Hashable {
         return Self(x: -value.x, y: -value.y)
     }
 
-    static var left = Self(x: -1, y: 0)
-    static var right = Self(x: 1, y: 0)
-    static var up = Self(x: 0, y: 1)
-    static var down = Self(x: 0, y: -1)
+    static let left = Self(x: -1, y: 0)
+    static let right = Self(x: 1, y: 0)
+    static let up = Self(x: 0, y: 1)
+    static let down = Self(x: 0, y: -1)
 
-    static var zero = Self(x: 0, y: 0)
-    
-    static var cardinalDirections = [left, right, up, down]
+    static let zero = Self(x: 0, y: 0)
+
+    static let cardinalDirections = [left, right, up, down]
 }

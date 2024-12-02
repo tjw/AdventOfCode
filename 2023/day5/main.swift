@@ -155,6 +155,7 @@ maps.forEach {
     assert($0.hasOverlaps == false)
 }
 
+@MainActor
 func map(_ ranges: [Range<Int>]) -> [Range<Int>] {
     var sourceRanges = ranges
 

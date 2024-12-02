@@ -47,7 +47,7 @@ for y in (0..<grid.height).reversed() {
 }
 print("")
 
-
+@MainActor
 func tiltNorth() {
     func move(from start: Location2D) {
         let nextY = (start.y + 1 ..< grid.height).first(where: { grid[Location2D(x: start.x, y: $0)] != .empty }) ?? grid.height

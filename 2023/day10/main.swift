@@ -10,10 +10,10 @@ import Foundation
 let lines = Input.lines()
 
 extension Location2D {
-    static var north = Self.down
-    static var south = Self.up
-    static var east = Self.right
-    static var west = Self.left
+    static let north = Self.down
+    static let south = Self.up
+    static let east = Self.right
+    static let west = Self.left
 }
 
 enum Pipe : Character, RawRepresentable {
@@ -93,6 +93,7 @@ while true {
 print("\(steps/2)")
 assert(steps/2 == 6867)
 
+@MainActor
 func printMap(showPath: Bool = true) {
     print("~~~~~~~~")
     map.forEachRow { y, row in
