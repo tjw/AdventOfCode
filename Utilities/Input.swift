@@ -7,14 +7,19 @@
 import Foundation
 
 enum Input {
-    static func lines(includeEmpty: Bool = false, file: String = #filePath) -> [String] {
+
+    static func input(file: String = #filePath) -> String {
         let processName = ProcessInfo().processName
         let source = URL(fileURLWithPath: file)
         let base = source.deletingLastPathComponent().deletingLastPathComponent()
         let inputURL = base.appendingPathComponent(processName).appendingPathComponent("input.txt")
 
         let inputData = try! Data(contentsOf: inputURL, options: [])
-        return String(data: inputData, encoding: .utf8)!.split(separator: "\n", omittingEmptySubsequences: !includeEmpty).map { String($0) }
+        return String(data: inputData, encoding: .utf8)!
+    }
+
+    static func lines(includeEmpty: Bool = false, file: String = #filePath) -> [String] {
+        return input(file: file).split(separator: "\n", omittingEmptySubsequences: !includeEmpty).map { String($0) }
     }
 }
 
