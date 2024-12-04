@@ -50,6 +50,10 @@ class GridMap<Element> {
         self.width = width
     }
 
+    var bounds: Bounds2D {
+        Bounds2D(x: 0, y: 0, width: width, height: height)
+    }
+
     func contains(location: Location) -> Bool {
         if location.x < 0 || location.x >= width || location.y < 0 || location.y >= height {
             return false
