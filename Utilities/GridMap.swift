@@ -43,6 +43,13 @@ class GridMap<Element> {
         elements.forEach { assert($0.count == self.width) }
     }
 
+    init(element: Element, width: Int, height: Int) {
+        let row = Array(repeating: element, count: width)
+        self.elements = Array(repeating: row, count: height)
+        self.height = height
+        self.width = width
+    }
+
     func contains(location: Location) -> Bool {
         if location.x < 0 || location.x >= width || location.y < 0 || location.y >= height {
             return false
@@ -73,6 +80,16 @@ class GridMap<Element> {
         (0..<height).forEach { y in
             operation(y, elements[y])
         }
+    }
+
+    func count(where operation: (Location, Element) -> Bool) -> Int {
+        var total = 0
+        forEach { location, element in
+            if operation(location, element) {
+                total += 1
+            }
+        }
+        return total
     }
 
     func row(y: Int) -> [Element] {
