@@ -21,6 +21,17 @@ enum Input {
     static func lines(includeEmpty: Bool = false, file: String = #filePath) -> [String] {
         return input(file: file).split(separator: "\n", omittingEmptySubsequences: !includeEmpty).map { String($0) }
     }
+
+    static func sections(file: String = #filePath) -> [[String]] {
+        let input = input(file: file)
+
+        // Defaulting now to separated by a blank line
+        let sections = input.split(separator: "\n\n")
+
+        return sections.map { section in
+            section.split(separator: "\n").map { String($0) }
+        }
+    }
 }
 
 extension String {
@@ -31,6 +42,10 @@ extension String {
 
     func numbers(separatedBy characterSet: CharacterSet = CharacterSet.whitespaces) -> [Int] {
         let components = self.components(separatedBy: characterSet)
+        return components.compactMap { Int($0) }
+    }
+    func numbers(separatedBy separator: String) -> [Int] {
+        let components = self.components(separatedBy: separator)
         return components.compactMap { Int($0) }
     }
 }
