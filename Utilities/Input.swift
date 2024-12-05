@@ -8,6 +8,7 @@ import Foundation
 
 enum Input {
 
+    // Assumes that the project will have a per-day Tool project with an `input.txt` file in the source directory for that tool.
     static func input(file: String = #filePath) -> String {
         let processName = ProcessInfo().processName
         let source = URL(fileURLWithPath: file)
