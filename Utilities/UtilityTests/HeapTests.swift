@@ -30,5 +30,25 @@ final class HeapTests: XCTestCase {
         }
         XCTAssertEqual(output, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
     }
+
+    func testRandom() throws {
+        (0..<1000).forEach { _ in
+            let count = Int.random(in: 10..<100)
+            var values = [Int]()
+
+            (0..<count).forEach { _ in
+                let value = Int.random(in: 0..<10000)
+                values.append(value)
+            }
+            var heap = Heap<Int>(elements: values, isBefore: <)
+
+            var output = [Int]()
+            while !heap.isEmpty {
+                output.append(heap.removeFirst())
+            }
+
+            XCTAssertEqual(output, values.sorted())
+        }
+    }
 }
 

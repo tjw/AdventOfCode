@@ -136,7 +136,10 @@ struct Heap<Element: Comparable> {
                 continue
             }
 
-            assert(isBefore(contents[parent(index)], contents[index]))
+            // The reversed check here is intentional. The parent does not have to be `isBefore` the child. But the child *cannot* be before the parent. Consider the case of inserting the same value multiple times.
+            let parent = contents[parent(index)]
+            let child = contents[index]
+            assert(!isBefore(child, parent))
         }
     }
 }
