@@ -46,10 +46,10 @@ func turnRight(from direction: Location2D) -> Location2D {
     }
 }
 
+var visited = Set<Location2D>([initialLocation])
 do {
     var location = initialLocation
     var direction = initialDirection
-    var visited = Set<Location2D>([location])
 
     while true {
         let candidate = location + direction
@@ -74,14 +74,9 @@ do {
 do {
     var count = 0
 
-    map.forEach { loc, element in
-        if loc == initialLocation {
-            return
-        } else if map[loc] == .obstacle {
-            return
-        }
-
-        print("trying \(loc)")
+    // Rather than enumerating the entire map, Rey points out the only spots that will matter are those along the original path.
+    visited.forEach { loc in
+        //print("trying \(loc)")
 
         // Temporary new obstacle
         map[loc] = .obstacle
