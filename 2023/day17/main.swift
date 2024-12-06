@@ -90,7 +90,7 @@ func traverse(map: GridMap<Int>) -> Traversal {
     let start = Traversal(start: .zero)
     let end = Location2D(x: map.width - 1, y: map.height - 1)
 
-    var heap = Heap<Traversal>()
+    var heap = MinMaxHeap<Traversal>()
     heap.push(start)
 
     var bestTraversalForLocation = [Location2D:Traversal]()

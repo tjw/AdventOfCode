@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "014741D2-444F-4511-9336-735CB69D6676",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:AdventOfCode-2015.xcodeproj",
+        "identifier" : "3437347E2B1FE460004CD750",
+        "name" : "UtilityTests"
+      }
+    }
+  ],
+  "version" : 1
+}

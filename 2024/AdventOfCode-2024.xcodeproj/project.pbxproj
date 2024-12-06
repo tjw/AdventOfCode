@@ -96,7 +96,7 @@
 		348204E32CFEAE6100BCDB3E /* day3 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = day3; sourceTree = BUILT_PRODUCTS_DIR; };
 		348205542D00116C00BCDB3E /* day4 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = day4; sourceTree = BUILT_PRODUCTS_DIR; };
 		3482059D2D0168B100BCDB3E /* day5 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = day5; sourceTree = BUILT_PRODUCTS_DIR; };
-		3486BC392B30141E004C3B0B /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
+		3486BC392B30141E004C3B0B /* MinMaxHeap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MinMaxHeap.swift; sourceTree = "<group>"; };
 		34CF30D12947025300094BD4 /* Location2D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location2D.swift; sourceTree = "<group>"; };
 		34CF30D42947040400094BD4 /* GridMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridMap.swift; sourceTree = "<group>"; };
 		34CF3160294C3AD500094BD4 /* RGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RGB.swift; sourceTree = "<group>"; };
@@ -201,7 +201,7 @@
 				34CF3160294C3AD500094BD4 /* RGB.swift */,
 				343734772B1FDF65004CD750 /* RandomAccessCollection.swift */,
 				343734792B1FE342004CD750 /* Range.swift */,
-				3486BC392B30141E004C3B0B /* Heap.swift */,
+				3486BC392B30141E004C3B0B /* MinMaxHeap.swift */,
 				343734802B1FE460004CD750 /* UtilityTests */,
 			);
 			name = Utilities;

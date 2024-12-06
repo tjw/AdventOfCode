@@ -45,8 +45,9 @@
 		3482058F2D010B7C00BCDB3E /* RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3160294C3AD500094BD4 /* RGB.swift */; };
 		348205902D010B8900BCDB3E /* Bounds2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF3165294C3E6D00094BD4 /* Bounds2D.swift */; };
 		348205922D01147000BCDB3E /* Dijkstra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348205912D01147000BCDB3E /* Dijkstra.swift */; };
-		348205972D0167A500BCDB3E /* MinHeap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348205962D0167A500BCDB3E /* MinHeap.swift */; };
-		348205982D0167A500BCDB3E /* MinHeap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348205962D0167A500BCDB3E /* MinHeap.swift */; };
+		348205972D0167A500BCDB3E /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348205962D0167A500BCDB3E /* Heap.swift */; };
+		348205982D0167A500BCDB3E /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348205962D0167A500BCDB3E /* Heap.swift */; };
+		348205A82D02A63000BCDB3E /* HeapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348205A72D02A62C00BCDB3E /* HeapTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -150,8 +151,10 @@
 		348205752D00C42300BCDB3E /* day8 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = day8; sourceTree = BUILT_PRODUCTS_DIR; };
 		348205832D01089400BCDB3E /* day9 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = day9; sourceTree = BUILT_PRODUCTS_DIR; };
 		348205912D01147000BCDB3E /* Dijkstra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dijkstra.swift; sourceTree = "<group>"; };
-		348205962D0167A500BCDB3E /* MinHeap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinHeap.swift; sourceTree = "<group>"; };
-		3486BC392B30141E004C3B0B /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
+		348205962D0167A500BCDB3E /* Heap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
+		348205A72D02A62C00BCDB3E /* HeapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeapTests.swift; sourceTree = "<group>"; };
+		348205A92D02A74900BCDB3E /* UtilityTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = UtilityTests.xctestplan; path = ../Utilities/UtilityTests.xctestplan; sourceTree = "<group>"; };
+		3486BC392B30141E004C3B0B /* MinMaxHeap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MinMaxHeap.swift; sourceTree = "<group>"; };
 		34CF30D12947025300094BD4 /* Location2D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location2D.swift; sourceTree = "<group>"; };
 		34CF30D42947040400094BD4 /* GridMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridMap.swift; sourceTree = "<group>"; };
 		34CF3160294C3AD500094BD4 /* RGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RGB.swift; sourceTree = "<group>"; };
@@ -251,6 +254,7 @@
 		34072D7129319D800030EB66 = {
 			isa = PBXGroup;
 			children = (
+				348205A92D02A74900BCDB3E /* UtilityTests.xctestplan */,
 				34072D8F2932F6970030EB66 /* Utilities */,
 				348204F52CFEE07700BCDB3E /* day1 */,
 				348205022CFEE62D00BCDB3E /* day2 */,
@@ -296,9 +300,9 @@
 				34CF3160294C3AD500094BD4 /* RGB.swift */,
 				343734772B1FDF65004CD750 /* RandomAccessCollection.swift */,
 				343734792B1FE342004CD750 /* Range.swift */,
-				3486BC392B30141E004C3B0B /* Heap.swift */,
+				3486BC392B30141E004C3B0B /* MinMaxHeap.swift */,
 				348205912D01147000BCDB3E /* Dijkstra.swift */,
-				348205962D0167A500BCDB3E /* MinHeap.swift */,
+				348205962D0167A500BCDB3E /* Heap.swift */,
 				343734802B1FE460004CD750 /* UtilityTests */,
 			);
 			name = Utilities;
@@ -308,6 +312,7 @@
 		343734802B1FE460004CD750 /* UtilityTests */ = {
 			isa = PBXGroup;
 			children = (
+				348205A72D02A62C00BCDB3E /* HeapTests.swift */,
 				343734812B1FE460004CD750 /* UtilityTests.swift */,
 				343734872B1FE47F004CD750 /* RangeTests.swift */,
 			);
@@ -625,8 +630,9 @@
 			files = (
 				343734882B1FE47F004CD750 /* RangeTests.swift in Sources */,
 				343734822B1FE460004CD750 /* UtilityTests.swift in Sources */,
-				348205972D0167A500BCDB3E /* MinHeap.swift in Sources */,
+				348205972D0167A500BCDB3E /* Heap.swift in Sources */,
 				343734862B1FE468004CD750 /* Range.swift in Sources */,
+				348205A82D02A63000BCDB3E /* HeapTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -708,7 +714,7 @@
 			files = (
 				3482058A2D01089A00BCDB3E /* Input.swift in Sources */,
 				3482058D2D010B7C00BCDB3E /* GridMap.swift in Sources */,
-				348205982D0167A500BCDB3E /* MinHeap.swift in Sources */,
+				348205982D0167A500BCDB3E /* Heap.swift in Sources */,
 				348205902D010B8900BCDB3E /* Bounds2D.swift in Sources */,
 				3482058E2D010B7C00BCDB3E /* Location2D.swift in Sources */,
 				3482058F2D010B7C00BCDB3E /* RGB.swift in Sources */,
