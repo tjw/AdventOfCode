@@ -52,7 +52,7 @@ class Dijkstra<Element: Hashable> {
     private class Estimate {
         let element: Element
         var cost: Int
-        var predecesor: Element?
+        var predecesor: Estimate?
 
         init(element: Element) {
             self.element = element
