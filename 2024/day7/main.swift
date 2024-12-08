@@ -68,7 +68,7 @@ do {
 
     for item in items {
         // Given an item with say, 5 inputs, there are four slots between the numbers to insert either a + or a *. Assign + to 0 and * to 1
-        let upper = pow3ish(item.inputs.count)
+        let upper = pow3ish(item.inputs.count - 1)
         print("item \(item.result) \(item.inputs), upper \(upper)")
         for idx in 0..<upper {
             var x = idx
