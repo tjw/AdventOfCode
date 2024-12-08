@@ -60,7 +60,7 @@ do {
     func concat(_ a: Int, _ b: Int) -> Int {
         // 123 || 456 -> 123456
         var mult = 1
-        while mult < b {
+        while mult <= b {
             mult *= 10
         }
         return a * mult + b
@@ -95,6 +95,5 @@ do {
 
     }
     print("\(result)")
-    // 297914586446459 is too low
-    // 424261660171557 too low
+    assert(result == 424977609625985)
 }
