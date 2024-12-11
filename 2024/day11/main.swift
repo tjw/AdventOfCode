@@ -59,14 +59,14 @@ do {
         return x
     }
 
-    var endBlinks = [[Int]]()
+    var endBlinks = [ContiguousArray<Int>]()
 
     for stone in stones {
         print("*** stone \(stone)")
-        var current = [stone]
+        var current = ContiguousArray<Int>([stone])
 
         for blink in 1..<76 {
-            var next = [Int]()
+            var next = ContiguousArray<Int>()
             for c in current {
                 if c == 0 {
                     next.append(1)
