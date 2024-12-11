@@ -39,10 +39,10 @@ do {
 do {
     // Stones can be computed independently (there are no rules that take into account more than one stone). Trying to iteratively compute the complete set of stones produces an impractally large array on each "blink" loop. Instead we can observe that we have rules that make stone values larger and lower and many values will computed over and over, so this is ripe for memoizing the results.
 
-    // Start with a class for representing the question we are trying to resolve. Given a particular Stone value, what is its representation at a given number of blinks?
+    // Start with a class for representing the question we are trying to resolve. Given a particular Stone value, how many stones does it produce after a given number of blinks?
     class Stone : Hashable, CustomStringConvertible {
 
-        // For any given input of a Stone with blinks > 0, there is an array of computed Stones
+        // For any given input of a Stone with blinks > 0, record a count of its eventual represenction
         static var memos = [Stone:Int]()
 
         let value: Int
