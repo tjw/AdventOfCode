@@ -41,7 +41,7 @@ extension String {
         return Int(String(digits))!
     }
 
-    func numbers(separatedBy characterSet: CharacterSet = CharacterSet.whitespaces) -> [Int] {
+    func numbers(separatedBy characterSet: CharacterSet = CharacterSet.whitespacesAndNewlines) -> [Int] {
         let components = self.components(separatedBy: characterSet)
         return components.compactMap { Int($0) }
     }
