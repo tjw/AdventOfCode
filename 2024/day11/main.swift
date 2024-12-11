@@ -41,6 +41,24 @@ do {
     let stones = Input.input().numbers()
     print("initial \(stones)")
 
+    // Could maybe combine these to produce a tuple, but often the power of 10 won't be needed
+    func digitCount(_ n: Int) -> Int {
+        var x = n
+        var digits = 0
+        while x > 0 {
+            digits += 1
+            x /= 10
+        }
+        return digits
+    }
+    func pow10(_ n: Int) -> Int {
+        var x = 1
+        (0..<n).forEach { _ in
+            x = x*10
+        }
+        return x
+    }
+
     var endBlinks = [[Int]]()
 
     for stone in stones {
@@ -54,14 +72,15 @@ do {
                     next.append(1)
                     continue
                 }
-                let str = "\(c)"
-                if str.count % 2 == 0 {
-                    let split = str.index(str.startIndex, offsetBy: str.count / 2)
-                    let left = str.prefix(upTo: split)
-                    let right = str.suffix(from: split)
+
+                let digits = digitCount(c)
+                if digits % 2 == 0 {
+                    let divisor = pow10(digits/2)
+                    let left = c / divisor
+                    let right = c % divisor
                     //print("\(c) -> \(left) and \(right)")
-                    next.append(Int(left)!)
-                    next.append(Int(right)!)
+                    next.append(left)
+                    next.append(right)
                     continue
                 }
                 next.append(c * 2024)
