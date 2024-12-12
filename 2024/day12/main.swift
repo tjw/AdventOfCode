@@ -7,44 +7,38 @@
 
 import Foundation
 
-let map = GridMap<Character>(lines: Input.lines()) { loc, ch in ch }
+let map = GridMap<Character>(lines: Input.lines().reversed()) { loc, ch in ch }
+
+class Region {
+    let type: Character
+    var plots: Set<Location2D>
+
+    init(type: Character, location: Location2D) {
+        self.type = type
+        self.plots = [location]
+    }
+
+    var area: Int {
+        return plots.count
+    }
+
+    var perimiter: Int {
+        var total = 0
+        plots.forEach { loc in
+            for dir in Location2D.cardinalDirections {
+                if map[loc + dir] != type {
+                    total += 1
+                }
+            }
+        }
+        return total
+    }
+}
+
+var regions = [Region]()
 
 do {
     var seen = Set<Location2D>()
-
-    struct Region {
-        let type: Character
-        var plots: Set<Location2D>
-
-        init(type: Character, location: Location2D) {
-            self.type = type
-            self.plots = [location]
-        }
-
-        var area: Int {
-            return plots.count
-        }
-
-        var perimiter: Int {
-            var total = 0
-            plots.forEach { loc in
-                for dir in Location2D.cardinalDirections {
-                    if map[loc + dir] != type {
-                        total += 1
-                    }
-                }
-            }
-            return total
-//            return plots.count(where: { loc in
-//                let isInterior = Location2D.cardinalDirections.allSatisfy { dir in
-//                    map[loc + dir] == type
-//                }
-//                return !isInterior
-//            })
-        }
-    }
-
-    var regions = [Region]()
 
     map.forEach { loc, ch in
         if seen.contains(loc) {
@@ -53,7 +47,7 @@ do {
 
         seen.insert(loc)
 
-        var region = Region(type: ch, location: loc)
+        let region = Region(type: ch, location: loc)
         //print("New region of \(ch) at \(loc)")
 
         var flood = [loc]
@@ -76,6 +70,9 @@ do {
 
         regions.append(region)
     }
+}
+
+do {
 
     //regions.sort { $0.type < $1.type }
     var total = 0
@@ -85,4 +82,9 @@ do {
     }
     print("\(total)")
 //    assert(total == 1387004)
+}
+
+
+do {
+    // sketch... find the top-most/left-most plot in the region to use as the starting point. start out heading east and trace the shape using left hand turns. somehow find any regions totally surrounded by this region and add their perimiter
 }
