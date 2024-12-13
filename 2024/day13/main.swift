@@ -21,16 +21,16 @@ struct Machine {
         buttonB = Location2D(x: Int(match.3)!, y: Int(match.4)!)
         prize = Location2D(x: Int(match.5)!, y: Int(match.6)!)
     }
+
+    init(buttonA: Location2D, buttonB: Location2D, prize: Location2D) {
+        self.buttonA = buttonA
+        self.buttonB = buttonB
+        self.prize = prize
+    }
 }
 
 let costA = 3
 let costB = 1
-
-let machines = Input.sections().map { section in
-    let line = section.joined(separator: " ")
-    return Machine(line: line)
-}
-//print("machines \(machines)")
 
 struct Move : Comparable {
     var pressesA: Int
@@ -45,54 +45,99 @@ struct Move : Comparable {
     }
 }
 
-// Using a heap expands too many nodes
-//for machine in machines {
-//    print("machine \(machine)")
-//    var heap = Heap<Move>(elements: [Move(pressesA: 0, pressesB: 0, location: .zero)], isBefore: <)
-//    while !heap.isEmpty {
-//        let best = heap.removeFirst()
+//do {
+//    let machines = Input.sections().map { section in
+//        let line = section.joined(separator: " ")
+//        return Machine(line: line)
+//    }
+//    //print("machines \(machines)")
 //
-//        if best.location == machine.prize {
-//            print("best \(best)")
-//            fatalError()
+//    var tokens = 0
+//    for machine in machines {
+//        print("machine \(machine)")
+//
+//        // Start with the maximum number of presses of B that doesn't overshoot
+//        let pressesB = min(machine.prize.x / machine.buttonB.x, machine.prize.y / machine.buttonB.y)
+//
+//        var move = Move(pressesA: 0, pressesB: pressesB, location: machine.buttonB * pressesB)
+//        print("starting move \(move)")
+//
+//        // Now trade in presses of B for A, avoiding overshooting
+//        while move.pressesB > 0 && move.location != machine.prize {
+//            move.pressesA += 1
+//            move.location += machine.buttonA
+//
+//            // If this overshoots, take away B presses until it doesn't
+//            while move.pressesB > 0 && (move.location.x > machine.prize.x || move.location.y > machine.prize.y) {
+//                move.pressesB -= 1
+//                move.location -= machine.buttonB
+//            }
 //        }
 //
-//        if best.location.x > machine.prize.x || best.location.y > machine.prize.y {
-//            // Now way to go back!
+//        if move.location == machine.prize {
+//            print("winning move \(move)")
+//            tokens += move.cost
 //        } else {
-//            heap.insert(Move(pressesA: best.pressesA + 1, pressesB: best.pressesB, location: best.location + machine.buttonA))
-//            heap.insert(Move(pressesA: best.pressesA, pressesB: best.pressesB + 1, location: best.location + machine.buttonB))
+//            print("can't win")
 //        }
 //    }
+//    print("\(tokens)")
+////    assert(tokens == 30973)
 //}
 
-var tokens = 0
-for machine in machines {
-    print("machine \(machine)")
+do {
+    let machines = Input.sections().map { section in
+        let line = section.joined(separator: " ")
+        let machine = Machine(line: line)
+        return Machine(buttonA: machine.buttonA, buttonB: machine.buttonB, prize: machine.prize * 10000000000000)
+    }
 
-    // Start with the maximum number of presses of B that doesn't overshoot
-    let pressesB = min(machine.prize.x / machine.buttonB.x, machine.prize.y / machine.buttonB.y)
+    var tokens = 0
+    for machine in machines {
+        print("machine \(machine)")
 
-    var move = Move(pressesA: 0, pressesB: pressesB, location: machine.buttonB * pressesB)
-    print("starting move \(move)")
+        let buttonA = machine.buttonA
+        let buttonB = machine.buttonB
+        let prize = machine.prize
 
-    // Now trade in presses of B for A, avoiding overshooting
-    while move.pressesB > 0 && move.location != machine.prize {
-        move.pressesA += 1
-        move.location += machine.buttonA
+        /*
+         Need to solve the system of linear Diophatine equations:
 
-        // If this overshoots, take away B presses until it doesn't
-        while move.pressesB > 0 && (move.location.x > machine.prize.x || move.location.y > machine.prize.y) {
-            move.pressesB -= 1
-            move.location -= machine.buttonB
+         A * buttonA.x + B * buttonB.x = prize.x
+         A * buttonA.y + B * buttonB.y = prize.y
+
+         adding the two equations we get a single equation of two variables
+
+         A * (buttonA.x + buttonA.y) + B * (buttonB.x + buttonB.y) = prize.x + prize.y
+
+         Repackage this into the form
+
+         ax + by = c
+
+         where x and y are the unknowns (our A and B here)
+         */
+
+        let a = (buttonA.x + buttonA.y)
+        let b = (buttonB.x + buttonB.y)
+        let c = prize.x + prize.y
+
+        let (x0, y0, d) = extended_gcd(a, b)
+        print("extended_gcd(\(a), \(b) -> (\(x0), \(y0), \(d))")
+        if d == 1 || c % d != 0 {
+            // No solutions
+            print("No solution")
+            continue
         }
-    }
 
-    if move.location == machine.prize {
-        print("winning move \(move)")
-        tokens += move.cost
-    } else {
-        print("can't win")
+        let x = x0 * (c / d)
+        let y = y0 * (c / d)
+
+        print("x \(x), y \(y)")
+
+        let v = a * x + b * y // THIS OVERFLOWS, but doing it in bc it produces the right value for c
+        print("v \(v), c \(c)")
+        // Use the Euclidean algorithm to find s and t such that a*s + b*t = d
+
     }
+    print("\(tokens)")
 }
-print("\(tokens)")
