@@ -186,11 +186,10 @@ extension GridMap where Element : GridCharacter {
     }
 }
 
-extension GridMap where Element : Equatable {
+extension GridMap {
 
-    // Starting with a given location, return an array of locations (including the input) that are directly or indirectly touching the starting point via cardinal direction moves
-    func flood(from loc: Location2D) -> [Location2D] {
-        let element = self[loc]
+    // Starting with a given location, return an array of locations (including the input) that are directly or indirectly touching the starting point via cardinal direction moves. The given predicate is used to determine whether the candidate location should be filled.
+    func flood(from loc: Location2D, where predicate: (Location2D) -> Bool) -> [Location2D] {
         var seen = Set<Location2D>([loc])
 
         var found = [loc] // locations definitely in this fill
@@ -204,7 +203,7 @@ extension GridMap where Element : Equatable {
 
             for dir in Location2D.cardinalDirections {
                 let candidate = last + dir
-                if !seen.contains(candidate) && contains(location: candidate) && self[candidate] == element {
+                if !seen.contains(candidate) && contains(location: candidate) && predicate(candidate) {
                     //print("  add \(candidate)")
                     found.append(candidate)
                     seen.insert(candidate)
@@ -217,3 +216,10 @@ extension GridMap where Element : Equatable {
     }
 }
 
+extension GridMap where Element : Equatable {
+    // A version of `flood` where the candidate location's element must match the starting location's element.
+    func flood(from loc: Location2D) -> [Location2D] {
+        let element = self[loc]!
+        return flood(from: loc, where: { self[$0] == element })
+    }
+}
