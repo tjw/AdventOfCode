@@ -60,33 +60,17 @@ do {
             return // already in another region
         }
 
-        seen.insert(loc)
-
-        var plots = [loc] // locations definitely in this region
-        var flood = [loc] // locations left to explore
-
-        while !flood.isEmpty {
-            let last = flood.last!
-            //print("  flood from \(last)")
-            flood.removeLast()
-            assert(seen.contains(last))
-
-            for dir in Location2D.cardinalDirections {
-                let candidate = last + dir
-                if !seen.contains(candidate) && map.contains(location: candidate) && map[candidate] == ch {
-                    //print("  add \(candidate)")
-                    plots.append(candidate)
-                    seen.insert(candidate)
-                    flood.append(candidate)
-                }
-            }
-        }
+        let plots = map.flood(from: loc)
+        let ch = map[loc]!
 
         let region = Region(type: ch, plots: plots)
         //print("New region of \(ch) at \(loc)")
 
         regions.append(region)
+        seen.formUnion(plots)
     }
+
+    print("\(regions.count) regions found")
 }
 
 // Part 1
@@ -130,14 +114,15 @@ do {
         return false
     }
 
-    // Could speed this up by first checking if their bounds overlap or touch at all
+    // Could speed this up by first checking if their bounds overlap or touch at all. Could also sort regions by Y and keep a running band of possible overlaps.
+    print("Finding direct neighbors")
     for regionIndex1 in 0..<regions.count-1 {
         let region1 = regions[regionIndex1]
         for region2 in regions[regionIndex1+1..<regions.count] {
             if regionsAreTouching(region1, region2) {
                 region1.addDirectNeighbor(region2)
                 region2.addDirectNeighbor(region1)
-                print("Regions \(region1.type) and \(region2.type) are direct neighbors")
+                //print("Regions \(region1.type) and \(region2.type) are direct neighbors")
             }
         }
     }

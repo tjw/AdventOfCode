@@ -48,4 +48,12 @@ struct Bounds2D {
             }
         }
     }
+
+    // Returns true if the receiver completely contains the argument
+    func contains(_ other: Bounds2D) -> Bool {
+        return x <= other.x &&
+        x + width >= other.x + other.width &&
+        y <= other.y &&
+        y + height >= other.y + other.height
+    }
 }

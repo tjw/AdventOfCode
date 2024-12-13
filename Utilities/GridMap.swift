@@ -186,3 +186,34 @@ extension GridMap where Element : GridCharacter {
     }
 }
 
+extension GridMap where Element : Equatable {
+
+    // Starting with a given location, return an array of locations (including the input) that are directly or indirectly touching the starting point via cardinal direction moves
+    func flood(from loc: Location2D) -> [Location2D] {
+        let element = self[loc]
+        var seen = Set<Location2D>([loc])
+
+        var found = [loc] // locations definitely in this fill
+        var explore = [loc] // locations left to explore
+
+        while !explore.isEmpty {
+            let last = explore.last!
+            //print("  explore from \(last)")
+            explore.removeLast()
+            assert(seen.contains(last))
+
+            for dir in Location2D.cardinalDirections {
+                let candidate = last + dir
+                if !seen.contains(candidate) && contains(location: candidate) && self[candidate] == element {
+                    //print("  add \(candidate)")
+                    found.append(candidate)
+                    seen.insert(candidate)
+                    explore.append(candidate)
+                }
+            }
+        }
+
+        return found
+    }
+}
+
