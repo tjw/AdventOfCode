@@ -114,19 +114,58 @@ do {
         return false
     }
 
-    // Could speed this up by first checking if their bounds overlap or touch at all. Could also sort regions by Y and keep a running band of possible overlaps.
-    print("Finding direct neighbors")
-    for regionIndex1 in 0..<regions.count-1 {
-        let region1 = regions[regionIndex1]
-        for region2 in regions[regionIndex1+1..<regions.count] {
-            if regionsAreTouching(region1, region2) {
-                region1.addDirectNeighbor(region2)
-                region2.addDirectNeighbor(region1)
-                //print("Regions \(region1.type) and \(region2.type) are direct neighbors")
-            }
-        }
-    }
+    /*
 
+     NOTE: There is a bunch of arguing following here with some steps toward implement what would have looked like:
+
+     - Find all the directly touching neighboring regions.
+     - For every pair of neighboring regions, try to find if one completely surrounds the other, so it isn't possible to build a transitive neighbor path to the edge of the map
+     - For each region, sort its locations by x and then y or whatever and find location that is the least x and then least y possible among those with the same x (should be a corner)
+       - drive a path around the shape keeping track of the number of turns
+       - For each inner region find the transitively touching enclosed regions and trace a path around them to add inner corners/sides
+
+     Towards the end is a much simpler corner counting approach.
+
+     */
+
+    // Could speed this up by first checking if their bounds overlap or touch at all. Could also sort regions by Y and keep a running band of possible overlaps.
+//    print("Finding direct neighbors")
+//    for regionIndex1 in 0..<regions.count-1 {
+//        let region1 = regions[regionIndex1]
+//        for region2 in regions[regionIndex1+1..<regions.count] {
+//            if regionsAreTouching(region1, region2) {
+//                region1.addDirectNeighbor(region2)
+//                region2.addDirectNeighbor(region1)
+//                //print("Regions \(region1.type) and \(region2.type) are direct neighbors")
+//            }
+//        }
+//    }
+
+    /*
+     Find regions that are directly and completely contained in another region. That is the two regions are touching and the inner region doesn't have a path of connections that can reach the edge of the map. Regions on the edge of the map cannot be directly contained since the have at least one escaping edge.
+
+     Here X directly contains A and B
+
+     XXXX
+     XABX
+     XXXX
+
+     Here X directly contains A, but not B. A directly contains B.
+
+     XXXXX
+     XAAAX
+     XABAX
+     XAAAX
+     XXXXX
+
+     */
+
+    // Could maybe make this faster with bounds checks or maybe having each region track the minimal number of steps it is from the map edge and then use a Heap to take the most likely quick path first.
+//    for region in regions {
+//        for neighbor in region.directNeighbors {
+//
+//        }
+//    }
 
     // Find regions that are totally enclosed in other regions. That is their entire outer perimiter neighbors a single other region.
     /*
@@ -168,4 +207,102 @@ do {
 
      */
     // sketch... find the top-most/left-most plot in the region to use as the starting point. start out heading east and trace the shape using left hand turns. somehow find any regions totally surrounded by this region and add their perimiter
+
+    /*
+     DIFFERENT IDEA. Use a 2x2 window scanning over each region. Different patterns in that window would produce a different number of corners and the number of corners and sides is the same.
+
+     For example, for region that is just "X" scanning over it would yeild:
+
+     ..  ..
+     .X  X.
+
+     .X  X.
+     ..  ..
+
+     Each of these would add one corner, yielding the poper result of 4.
+
+     Care would need to be taken that the window would extend one step *outside* the map.
+
+     For "XX", you'd get the windows:
+
+     ..  ..  ..
+     .X  XX  X.
+
+     .X  XX  X.
+     ..  ..  ..
+
+     */
+
+    var total = 0
+    for region in regions {
+        let bounds = region.bounds
+        var sides = 0
+
+        for y in (bounds.y - 1)..<(bounds.y + bounds.height + 2) { // Maybe only need + 1 here?
+            for x in (bounds.x - 1)..<(bounds.x + bounds.width + 2) { // Maybe only need + 1 here?
+                /*
+                 Make a 2x2 sample
+
+                   c d
+                   a b
+
+                 Taking care that we are comparing only spots from the indicated region, not the letter used to form it since two completely different regions with the same letter could appeach across each other diagonally, but it could be the same region too where there are inner holes like:
+
+                 XXXX
+                 XX.X
+                 X.XX
+                 XXXX
+
+                 */
+
+                let a = locationToRegion[Location2D(x: x, y: y)] === region
+                let b = locationToRegion[Location2D(x: x + 1, y: y)] === region
+                let c = locationToRegion[Location2D(x: x, y: y + 1)] === region
+                let d = locationToRegion[Location2D(x: x + 1, y: y + 1)] === region
+
+                switch (a, b, c, d) {
+                    case (true, false, false, false),
+                    (false, true, false, false),
+                    (false, false, true, false),
+                    (false, false, false, true):
+                    // One single "outer" corner in the window
+                    sides += 1
+                case (false, true, true, true),
+                    (true, false, true, true),
+                    (true, true, false, true),
+                    (true, true, true, false):
+                    // Any three set is a single "inner" corner
+                    sides += 1
+                case (true, true, false, false),
+                    (false, false, true, true):
+                    // Horizontal line passing through. No corners
+                    break
+                case (false, true, false, true),
+                    (true, false, true, false):
+                    // Vertical line passing through. No corners.
+                    break
+                case (false, false, false, false):
+                    // Empty space. No corners
+                    break
+                case (true, true, true, true):
+                    // Full space, No corners
+                    break
+                case (false, true, true, false),
+                    (true, false, false, true):
+                    // Diagonal kissing touch. Two corners!
+                    sides += 2
+                default:
+                    print("Need patter for:")
+                    print("\(c ? "X" : ".") \(d ? "X" : ".")")
+                    print("\(a ? "X" : ".") \(b ? "X" : ".")")
+                    fatalError()
+                }
+            }
+        }
+
+        print("region \(region.type) has \(sides) sides")
+        total += region.area * sides
+    }
+
+    print("\(total)")
 }

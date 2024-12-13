@@ -33,9 +33,16 @@ struct Location2D : Hashable {
     static func +=(left: inout Self, right: Self) {
         left = Self(x: left.x + right.x, y: left.y + right.y)
     }
+    static func -=(left: inout Self, right: Self) {
+        left = Self(x: left.x - right.x, y: left.y - right.y)
+    }
 
     static prefix func -(value: Self) -> Self {
         return Self(x: -value.x, y: -value.y)
+    }
+
+    static func *(left: Self, right: Int) -> Self {
+        return Self(x: left.x * right, y: left.y * right)
     }
 
     static let left = Self(x: -1, y: 0)
