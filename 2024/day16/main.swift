@@ -29,6 +29,8 @@ let map = GridMap<MapLocation>(lines: Input.lines().reversed()) { loc, ch in
     }
     return MapLocation(rawValue: ch)!
 }
+print("Start \(start)")
+print("End \(end)")
 
 struct Heading : Hashable {
     var location: Location2D
@@ -80,16 +82,55 @@ var heap = Heap(elements: [initial], isBefore: { $0.score < $1.score })
 // Keep the best for not get getting to a location, but what direction we were going when we got there.
 var bestByHeading = [Heading:Route]()
 
+func printMap(route: Route) {
+    var directionByLocation = [Location2D:Location2D]()
+
+    // There will be some overwriting with turns. Whatever, can make it only show forward motion if needed
+    for heading in route.headings {
+        directionByLocation[heading.location] = heading.direction
+    }
+
+    for y in (0..<map.height).reversed() {
+        for x in 0..<map.width {
+            let loc = Location2D(x: x, y: y)
+            if let dir = directionByLocation[loc] {
+                switch dir {
+                case .left:
+                    print("<", terminator: "")
+                case .right:
+                    print(">", terminator: "")
+                case .up:
+                    print("^", terminator: "")
+                case .down:
+                    print("v", terminator: "")
+                default:
+                    fatalError()
+                }
+            } else {
+                let element = map[loc]!
+                print(element.rawValue, terminator: "")
+            }
+        }
+        print("")
+    }
+}
+
 while true {
     let route = heap.removeFirst()
 
     if route.location == end {
         print("\(route.score)")
+//        for heading in route.headings {
+//            print("heading \(heading)")
+//        }
+
+        printMap(route: route)
         break
     }
 
     if route.superseded {
-        fatalError()
+        // Skip this one, there is a better route in the heap
+        continue
     }
 
     func addNewRoute(_ route: Route) {
@@ -130,14 +171,14 @@ while true {
         let left = direction.turnLeft
         if map[location + left] == .empty {
             let leftHeading = Heading(location: location, direction: left)
-            let turn = Route(headings: route.headings + [leftHeading], score: route.score + 90)
+            let turn = Route(headings: route.headings + [leftHeading], score: route.score + 1000)
             addNewRoute(turn)
         }
 
         let right = direction.turnRight
         if map[location + right] == .empty {
             let rightHeading = Heading(location: location, direction: right)
-            let turn = Route(headings: route.headings + [rightHeading], score: route.score + 90)
+            let turn = Route(headings: route.headings + [rightHeading], score: route.score + 1000)
             addNewRoute(turn)
         }
     }
