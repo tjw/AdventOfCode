@@ -41,9 +41,13 @@ class Route {
     var headings: [Heading]
     var score: Int
 
-    init(headings: [Heading], score: Int) {
+    // Other routs to this some intermediate result that were another route to this same heading at the same score
+    var alternates: [Route]
+
+    init(headings: [Heading], score: Int, alternates: [Route]) {
         self.headings = headings
         self.score = score
+        self.alternates = alternates
     }
 
     var superseded: Bool = false
@@ -76,7 +80,7 @@ class Route {
 
 // TODO: two routes arriving at the same location might be headed different directions so it might be needed somehow to not score a route immediately at a turn but wait for it to commit to the new direction?
 
-let initial = Route(headings: [Heading(location: location, direction: direction)], score: 0)
+let initial = Route(headings: [Heading(location: location, direction: direction)], score: 0, alternates: [])
 var heap = Heap(elements: [initial], isBefore: { $0.score < $1.score })
 
 // Keep the best for not get getting to a location, but what direction we were going when we got there.
@@ -115,7 +119,7 @@ func printMap(route: Route) {
                 case .empty:
                     print("⬜️", terminator: "")
                 case .wall:
-                    print("⬛️", terminator: "")
+                    print("🟫", terminator: "")
                 }
             }
         }
@@ -134,7 +138,7 @@ func printVisited(_ visited: Set<Location2D>) {
                 case .empty:
                     print("⬜️", terminator: "")
                 case .wall:
-                    print("⬛️", terminator: "")
+                    print("🟫", terminator: "")
                 }
             }
         }
@@ -147,15 +151,14 @@ while true {
 
     if route.location == end {
         print("\(route.score)")
-//        assert(route.score == 143564)
-
-//        for heading in route.headings {
-//            print("heading \(heading)")
-//        }
+        assert(route.score == 143564)
 
         printMap(route: route)
 
         var visited = Set<Location2D>(route.headings.map { $0.location })
+        for alternate in route.alternates {
+            visited.formUnion(alternate.headings.map { $0.location} )
+        }
 
         // See about others routes that are the same cost
         while !heap.isEmpty {
@@ -166,7 +169,11 @@ while true {
             } else if other.location == end {
                 print("~~~~~~")
                 printMap(route: other)
+
                 visited.formUnion(other.headings.map { $0.location })
+                for alternate in other.alternates {
+                    visited.formUnion(alternate.headings.map { $0.location} )
+                }
             }
         }
 
@@ -174,13 +181,13 @@ while true {
         printVisited(visited)
 
         print("\(visited.count)")
-        // 565 too low
+        assert(visited.count == 593)
 
         break
     }
 
     if route.superseded {
-        // Skip this one, there is a better route in the heap
+        // Skip this one, there is a better route in the heap or one that is equivalent and lists this one in its alternates
         continue
     }
 
@@ -188,10 +195,16 @@ while true {
         let heading = route.heading
         if let best = bestByHeading[heading] {
             if best.score > route.score {
+                // The new route is better
                 best.superseded = true
                 bestByHeading[heading] = route
+            } else if best.score == route.score {
+                // The new route is equivalent. Record the alternate, but do still replace the old one
+                best.superseded = true
+                bestByHeading[heading] = route
+                route.alternates.append(best)
             } else {
-                // Existing route is as good or better
+                // Existing route is better
                 return
             }
         } else {
@@ -208,7 +221,7 @@ while true {
         let element = map[next]!
         if element == .empty {
             let forwardHeading = Heading(location: next, direction: route.direction)
-            let forward = Route(headings: route.headings + [forwardHeading], score: route.score + 1)
+            let forward = Route(headings: route.headings + [forwardHeading], score: route.score + 1, alternates: route.alternates)
             addNewRoute(forward)
         }
     }
@@ -221,14 +234,14 @@ while true {
         let left = direction.turnLeft
         if map[location + left] == .empty {
             let leftHeading = Heading(location: location, direction: left)
-            let turn = Route(headings: route.headings + [leftHeading], score: route.score + 1000)
+            let turn = Route(headings: route.headings + [leftHeading], score: route.score + 1000, alternates: route.alternates)
             addNewRoute(turn)
         }
 
         let right = direction.turnRight
         if map[location + right] == .empty {
             let rightHeading = Heading(location: location, direction: right)
-            let turn = Route(headings: route.headings + [rightHeading], score: route.score + 1000)
+            let turn = Route(headings: route.headings + [rightHeading], score: route.score + 1000, alternates: route.alternates)
             addNewRoute(turn)
         }
     }
