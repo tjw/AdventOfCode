@@ -178,19 +178,15 @@ let moves = sections[1].joined()
 
 // We implicitly assume the map is surrounded by walls instead of checking for going off the map
 
-func doHorizontalMove(_ dir: Location2D) -> Bool {
+func doHorizontalMove(_ dir: Location2D) {
     let candidate = location + dir
-    //print("location \(location)")
-    //print("dir \(dir)")
-    //print("candidate \(candidate)")
-    //print("map width \(map.width), height \(map.height)")
-    var element = map[candidate]!
+    let element = map[candidate]!
     if element == .empty {
         location = candidate
-        return true
+        return
     }
     if element == .wall {
-        return false
+        return
     }
 
     // Depending on whether we are moving left or right, we should first see a '[' or ']' and then the other
@@ -215,7 +211,7 @@ func doHorizontalMove(_ dir: Location2D) -> Bool {
             continue
         }
         if next == .wall {
-            return false
+            return
         }
         if next == .empty {
             // Move all the boxes one step
@@ -226,24 +222,20 @@ func doHorizontalMove(_ dir: Location2D) -> Bool {
             }
             map[candidate] = .empty
             location = candidate
-            return true
+            return
         }
     }
 }
 
-func doVerticalMove(_ dir: Location2D) -> Bool {
+func doVerticalMove(_ dir: Location2D) {
     let candidate = location + dir
-//    print("location \(location)")
-//    print("dir \(dir)")
-//    print("candidate \(candidate)")
-//    print("map width \(map.width), height \(map.height)")
-    var element = map[candidate]!
+    let element = map[candidate]!
     if element == .empty {
         location = candidate
-        return true
+        return
     }
     if element == .wall {
-        return false
+        return
     }
 
     // The element should be a left/right box edge. Keep track of a set of locations for each row that is being pushed. This first box might push another box, etc. Only when the next pushed row has no further boxes to push can the whole operation succeed. If a rock is hit at any time, nothing moves.
@@ -267,7 +259,7 @@ func doVerticalMove(_ dir: Location2D) -> Bool {
 
             if element == .wall {
                 // Blocked
-                return false
+                return
             }
             if element == .empty {
                 continue
@@ -305,8 +297,6 @@ func doVerticalMove(_ dir: Location2D) -> Bool {
 
     // Finally, move the robot
     location = candidate
-
-    return true
 }
 
 moves.forEach { move in
