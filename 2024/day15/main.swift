@@ -180,10 +180,10 @@ let moves = sections[1].joined()
 
 func doHorizontalMove(_ dir: Location2D) -> Bool {
     let candidate = location + dir
-    print("location \(location)")
-    print("dir \(dir)")
-    print("candidate \(candidate)")
-    print("map width \(map.width), height \(map.height)")
+    //print("location \(location)")
+    //print("dir \(dir)")
+    //print("candidate \(candidate)")
+    //print("map width \(map.width), height \(map.height)")
     var element = map[candidate]!
     if element == .empty {
         location = candidate
@@ -222,18 +222,91 @@ func doHorizontalMove(_ dir: Location2D) -> Bool {
             while boxEdge > 0 {
                 map[candidate + dir * boxEdge] = map[candidate + dir * (boxEdge - 1)]
                 boxEdge -= 1
-                printMap()
+                //printMap()
             }
             map[candidate] = .empty
             location = candidate
-            printMap()
             return true
         }
     }
 }
 
 func doVerticalMove(_ dir: Location2D) -> Bool {
-    fatalError()
+    let candidate = location + dir
+//    print("location \(location)")
+//    print("dir \(dir)")
+//    print("candidate \(candidate)")
+//    print("map width \(map.width), height \(map.height)")
+    var element = map[candidate]!
+    if element == .empty {
+        location = candidate
+        return true
+    }
+    if element == .wall {
+        return false
+    }
+
+    // The element should be a left/right box edge. Keep track of a set of locations for each row that is being pushed. This first box might push another box, etc. Only when the next pushed row has no further boxes to push can the whole operation succeed. If a rock is hit at any time, nothing moves.
+    // Treat the source with the robot as a starting row (it should just be an empty). We could set up the first row w/o it, but this lets us have the same code set up every row of locations.
+
+    assert(map[location]! == .empty)
+
+    let thisRow = Set<Location2D>([location])
+    var locationsInRowToPush = [thisRow]
+
+    while true {
+        let prevRow = locationsInRowToPush.last!
+        var nextRow = Set<Location2D>()
+
+        for pushFrom in prevRow {
+            assert(map[pushFrom]! == .boxLeft || map[pushFrom]! == .boxRight || (locationsInRowToPush.count == 1 && map[pushFrom]! == .empty))
+
+            // The first item in the next row possibly getting pushed
+            let push = pushFrom + dir
+            let element = map[push]!
+
+            if element == .wall {
+                // Blocked
+                return false
+            }
+            if element == .empty {
+                continue
+            }
+            if element == .boxLeft {
+                let neighbor = push + .right
+                assert(map[neighbor]! == .boxRight)
+                nextRow.insert(push)
+                nextRow.insert(neighbor)
+            } else {
+                assert(element == .boxRight)
+                let neighbor = push + .left
+                assert(map[neighbor]! == .boxLeft)
+                nextRow.insert(push)
+                nextRow.insert(neighbor)
+            }
+
+        }
+
+        if nextRow.isEmpty {
+            // Free to push everything
+            break
+        }
+        locationsInRowToPush.append(nextRow)
+    }
+
+    // Now push each row in reverse order, clearing the old spots as we go (since each of them might not be filled by the next row to push)
+    for row in locationsInRowToPush.reversed() {
+        for loc in row {
+            let dest = loc + dir
+            map[dest] = map[loc]!
+            map[loc] = .empty
+        }
+    }
+
+    // Finally, move the robot
+    location = candidate
+
+    return true
 }
 
 moves.forEach { move in
@@ -252,51 +325,15 @@ moves.forEach { move in
         fatalError()
     }
 
-    /*
-     func doMove() {
-     let candidate = location + dir
-
-     switch map[candidate]! {
-     case .empty:
-     // Just move
-     location = candidate
-     case .wall:
-     // Nothing happens
-     return
-     case .box:
-     // Continue looking in this direction until we find an empty or wall
-     var next = candidate
-     while true {
-     next = next + dir
-     switch map[next]! {
-     case .wall:
-     // Blocked
-     return
-     case .empty:
-     // Can "move" this sequence of boxes with just two updates
-     map[candidate] = .empty
-     map[next] = .box
-     location = candidate
-     return
-     case .box:
-     // Keep going, pushing a bigger stack
-     break
-     }
-     }
-     }
-     }
-     doMove()
-     */
-
-    printMap()
+    //printMap()
 }
 
-/*
- var total = 0
- map.forEach { loc, element in
- if element == .box {
- total += loc.y * 100 + loc.x
- }
- }
- print("\(total)")
- */
+var total = 0
+map.forEach { loc, element in
+    if element == .boxLeft {
+        total += loc.y * 100 + loc.x
+    }
+}
+print("\(total)")
+assert(total == 1386070)
+
