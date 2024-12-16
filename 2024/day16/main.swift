@@ -90,25 +90,52 @@ func printMap(route: Route) {
         directionByLocation[heading.location] = heading.direction
     }
 
+    // Printing '<#' with some text and then a closing # followed by > (can't join them here or they'll do it...) makes a placeholder value and drops the quoting characters, messing up the output. (That is the placeholder shows up in the Console.
+    // Could maybe use that for kinda highlighting in the console, but will use emoji for now.
+
     for y in (0..<map.height).reversed() {
         for x in 0..<map.width {
             let loc = Location2D(x: x, y: y)
             if let dir = directionByLocation[loc] {
                 switch dir {
                 case .left:
-                    print("<", terminator: "")
+                    print("⬅️", terminator: "")
                 case .right:
-                    print(">", terminator: "")
+                    print("➡️", terminator: "")
                 case .up:
-                    print("^", terminator: "")
+                    print("⬆️", terminator: "")
                 case .down:
-                    print("v", terminator: "")
+                    print("⬇️", terminator: "")
                 default:
                     fatalError()
                 }
             } else {
                 let element = map[loc]!
-                print(element.rawValue, terminator: "")
+                switch element {
+                case .empty:
+                    print("⬜️", terminator: "")
+                case .wall:
+                    print("⬛️", terminator: "")
+                }
+            }
+        }
+        print("")
+    }
+}
+func printVisited(_ visited: Set<Location2D>) {
+    for y in (0..<map.height).reversed() {
+        for x in 0..<map.width {
+            let loc = Location2D(x: x, y: y)
+            if visited.contains(loc) {
+                print("🟠", terminator: "")
+            } else {
+                let element = map[loc]!
+                switch element {
+                case .empty:
+                    print("⬜️", terminator: "")
+                case .wall:
+                    print("⬛️", terminator: "")
+                }
             }
         }
         print("")
@@ -120,11 +147,35 @@ while true {
 
     if route.location == end {
         print("\(route.score)")
+//        assert(route.score == 143564)
+
 //        for heading in route.headings {
 //            print("heading \(heading)")
 //        }
 
         printMap(route: route)
+
+        var visited = Set<Location2D>(route.headings.map { $0.location })
+
+        // See about others routes that are the same cost
+        while !heap.isEmpty {
+            let other = heap.removeFirst()
+            if other.score > route.score {
+                print("other score is \(other.score)")
+                break
+            } else if other.location == end {
+                print("~~~~~~")
+                printMap(route: other)
+                visited.formUnion(other.headings.map { $0.location })
+            }
+        }
+
+        print("~~~~~~")
+        printVisited(visited)
+
+        print("\(visited.count)")
+        // 565 too low
+
         break
     }
 
@@ -146,7 +197,6 @@ while true {
         } else {
             bestByHeading[heading] = route
         }
-
         heap.insert(route)
     }
 
@@ -182,4 +232,5 @@ while true {
             addNewRoute(turn)
         }
     }
+
 }
