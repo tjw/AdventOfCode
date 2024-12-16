@@ -22,7 +22,7 @@ private func rightChild(_ i: Int) -> Int {
     return (i * 2) + 2
 }
 
-struct Heap<Element: Comparable> {
+struct Heap<Element> {
 
     private var contents: ContiguousArray<Element>
     private let isBefore: (Element, Element) -> Bool
@@ -73,7 +73,7 @@ struct Heap<Element: Comparable> {
         if (index == 0) {
             return // Already at the root
         }
-        assert(contents[index] == element)
+        //assert(contents[index] == element)
         let parentIndex = parent(index)
         let parent = contents[parentIndex]
 
@@ -90,7 +90,7 @@ struct Heap<Element: Comparable> {
     // Repeatedly push the item now at the root until the heap condition is restored.
     // That is at each position, the parent must be `before` its children (if they exist). So, when picking which (if either) child to swap with, we have to pick the one of them that should go first, lest it invalidate the heap condition too.
     private mutating func pushDown(element: Element, at index: Int, count: Int) {
-        assert(contents[index] == element)
+        //assert(contents[index] == element)
         assert(contents.count == count)
 
         // Start assuming we'll leave the item where it is

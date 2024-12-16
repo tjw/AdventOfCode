@@ -66,3 +66,35 @@ struct Location2D : Hashable {
 
     static let allDirections = cardinalDirections + diagonals
 }
+
+// Requires map locations are ordered with zero,zero at the bottom left
+extension Location2D {
+    var turnLeft: Location2D {
+        switch self {
+        case .left:
+            return .down
+        case .down:
+            return .right
+        case .right:
+            return .up
+        case .up:
+            return .left
+        default:
+            fatalError()
+        }
+    }
+    var turnRight: Location2D {
+        switch self {
+        case .left:
+            return .up
+        case .down:
+            return .left
+        case .right:
+            return .down
+        case .up:
+            return .right
+        default:
+            fatalError()
+        }
+    }
+}
