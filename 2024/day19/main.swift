@@ -13,48 +13,38 @@ let patterns = sections[1]
 
 print("availableTowels \(availableTowels)")
 
-struct Match {
-    var usedTowels: [String] = []
-    var remainder: Substring
+var hasSolution = [String:Bool]()
 
-    func step() -> [Match] {
-        assert(!remainder.isEmpty)
-
-        //print("Checking \(remainder)")
-        return availableTowels.compactMap { towel in
-            //print("  - \(towel)")
-            if remainder.hasPrefix(towel) {
-                //print("  - \(towel) matches")
-                return Match(usedTowels: usedTowels + [towel], remainder: remainder.trimmingPrefix(towel))
+func checkForSolution(_ string: String) -> Bool {
+    if let value = hasSolution[string] {
+        return value
+    }
+    for towel in availableTowels {
+        if string.hasPrefix(towel) {
+            if string == towel {
+                //print("string \(string) -- true")
+                hasSolution[string] = true
+                return true
             } else {
-                return nil
+                let remainder = string.trimmingPrefix(towel)
+                if checkForSolution(String(remainder)) {
+                    //print("string \(string) -- true")
+                    hasSolution[string] = true
+                    return true
+                }
             }
         }
     }
-
-    var complete: Bool {
-        return remainder.isEmpty
-    }
+    //print("string \(string) -- false")
+    hasSolution[string] = false
+    return false
 }
 
-var remaining = patterns.map { Match(remainder: $0[...]) }
-
-var solutions = [Match]()
-while !remaining.isEmpty {
-    let next = remaining.flatMap { $0.step() }
-
-    solutions += next.filter { $0.complete }
-    remaining = next.filter { !$0.complete }
-    print("\(remaining.count)")
+let count = patterns.count {
+    let value = checkForSolution($0)
+    print("# \($0) -- \(value)")
+    return value
 }
+print("\(count)")
+assert(count == 251)
 
-print("\(solutions.count)")
-
-// Might be possible to make a given pattern mutiple ways?
-var uniqueSolutions = Set<String>()
-
-for solution in solutions {
-    //print("\(solution.usedTowels.joined(separator: "")) -- \((solution.usedTowels))")
-    uniqueSolutions.insert(solution.usedTowels.joined(separator: ""))
-}
-print("\(uniqueSolutions.count)")
