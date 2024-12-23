@@ -31,28 +31,49 @@ let map = GridMap<MapLocation>(lines: Input.lines()) { loc, ch in
 print("Start \(start)")
 print("End \(end)")
 
+// Each route is the end of a chain (to avoid copying the entire path around).
 class Route {
-    var locations: [Location2D]
+    let previous: Route?
+    let location: Location2D
+    let steps: Int
+
+//    var locations: [Location2D]
 
     var superseded: Bool = false
 
-    init(locations: [Location2D]) {
-        self.locations = locations
-    }
+    init(previous: Route?, location: Location2D) {
+        self.previous = previous
+        self.location = location
 
-    var location: Location2D {
-        return locations.last!
-    }
-
-    var steps: Int {
         // Don't count the initial position as a step
-        return locations.count - 1
+        if let previous = previous {
+            self.steps = previous.steps + 1
+        } else {
+            self.steps = 0
+        }
     }
+
+    var allLocations: [Location2D] {
+        var locations = [Location2D]()
+        var route = self
+
+        while true {
+            locations.append(route.location)
+            if let previous = route.previous {
+                route = previous
+            } else {
+                return locations.reversed()
+            }
+        }
+    }
+//    var location: Location2D {
+//        return locations.last!
+//    }
 }
 
 func printMap(route: Route, cheat: Location2D? = nil, better: Route? = nil) {
-    let visited = Set(route.locations)
-    let betterVisitied = Set(better?.locations ?? [])
+    let visited = Set(route.allLocations)
+    let betterVisitied = Set(better?.allLocations ?? [])
 
     for y in (0..<map.height) {
         for x in 0..<map.width {
@@ -78,7 +99,7 @@ func printMap(route: Route, cheat: Location2D? = nil, better: Route? = nil) {
 }
 
 func findBestRoute(from start: Location2D, to end: Location2D) -> Route? {
-    let initial = Route(locations: [start])
+    let initial = Route(previous: nil, location: start)
     var heap = Heap(elements: [initial], isBefore: { $0.steps < $1.steps })
     var bestByLocation = [Location2D:Route]()
 
@@ -105,7 +126,7 @@ func findBestRoute(from start: Location2D, to end: Location2D) -> Route? {
             guard let element = map[candidate] else { return }
             guard element == .empty else { return }
 
-            let route = Route(locations: base.locations + [candidate])
+            let route = Route(previous: base, location: candidate)
 
             if let best = bestByLocation[candidate] {
                 if best.steps > route.steps {
@@ -165,9 +186,12 @@ var cheatsBySavings = [Int:[Location2D]]()
 
 var attemptedCheats = Set<Location2D>()
 
-for pico in 0..<route.locations.count - 1 {
+var count = 0
 
-    let current = route.locations[pico]
+var originalRouteLocations = route.allLocations
+for pico in 0..<originalRouteLocations.count - 1 {
+
+    let current = originalRouteLocations[pico]
 
     for dir1 in Location2D.cardinalDirections {
         // Find all adjacent walls
@@ -197,20 +221,14 @@ for pico in 0..<route.locations.count - 1 {
             // Make a new route to the end from the current spot, given the modified map. Has to be a route since the map is *more* permissive than it was
             let candidate = findBestRoute(from: current, to: end)!
 
-            // Require the new route to have taken the give path
-            assert(candidate.locations[0] == current)
-//            if candidate.locations.count < 2 || candidate.locations[1] != cheat.start {
-//                continue
-//            }
-
             if pico + candidate.steps < route.steps {
                 //print("Better: \(pico + candidate.steps) ")
                 //printMap(route: route, cheat0: loc0, cheat1: loc1, cheat2: loc2, better: candidate)
 
                 let savings = route.steps - (pico + candidate.steps)
-                if savings == 2 {
-                    print("cheat \(cheat)")
-                    printMap(route: route, cheat: cheat, better: candidate)
+                if savings >= 100 {
+                    print("\(cheat)")
+                    count += 1
                 }
                 cheatsBySavings[savings] = (cheatsBySavings[savings] ?? []) + [cheat]
             }
@@ -219,64 +237,10 @@ for pico in 0..<route.locations.count - 1 {
             map[cheat] = .wall
         }
     }
-
-    /*
-    for cheatOffset in cheatOffsets {
-        // Make sure at least two of the cheat steps are on the map and store the original values
-        let loc0 = current + cheatOffset[0]
-        let loc1 = current + cheatOffset[1]
-        let loc2 = current + cheatOffset[2]
-
-
-        guard let cheat0 = map[loc0], let cheat1 = map[loc1] else { continue }
-        let cheat2 = map[loc2]
-
-        // First must be a wall.
-        guard cheat0 == .wall else { continue }
-
-        // Then either an empty or a wall and an empty
-        guard cheat1 == .empty || cheat2 == .empty else {
-            continue
-        }
-
-        // A cheat that doesn't actually end up using the second location is unique to any other with the same first location
-        let cheat = Cheat(cheat0: loc0, cheat1: cheat1 == .empty ? nil : loc1)
-        if attemptedCheats.contains(cheat) {
-            continue
-        }
-        attemptedCheats.insert(cheat)
-
-        // Try this cheat
-        map[loc0] = .empty
-        map[loc1] = .empty
-
-        // Make a new route to the end from the current spot, given the modified map. Has to be a route since the map is *more* permissive than it was
-        let candidate = findBestRoute(from: current, to: end)!
-        assert(candidate.locations[0] == current)
-
-
-        if pico + candidate.steps < route.steps {
-            //print("Better: \(pico + candidate.steps) ")
-            //printMap(route: route, cheat0: loc0, cheat1: loc1, cheat2: loc2, better: candidate)
-
-            let savings = route.steps - (pico + candidate.steps)
-            if savings == 64 {
-                print("loc0 \(loc0), loc1 \(loc1), loc2 \(loc2)")
-                print("success \(cheat)")
-                printMap(route: route, cheat0: loc0, cheat1: loc1, cheat2: loc2, better: candidate)
-            }
-            cheatsBySavings[savings] = (cheatsBySavings[savings] ?? []) + [cheat]
-        }
-
-        // Restore the map
-        map[loc0] = cheat0
-        if cheat1 == .wall {
-            map[loc1] = cheat1
-        }
-    }
-     */
 }
 
 cheatsBySavings.keys.sorted().forEach { key in
     print("\(cheatsBySavings[key]!.count) that save \(key)")
 }
+
+print("\(count)")
