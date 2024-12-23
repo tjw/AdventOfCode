@@ -50,19 +50,21 @@ class Route {
     }
 }
 
-func printMap(route: Route, cheat0: Location2D? = nil, cheat1: Location2D? = nil, cheat2: Location2D? = nil, better: Route? = nil) {
+// The first location must be a wall, and the second a an empty spot
+struct Cheat : Hashable {
+    var start: Location2D
+    var end: Location2D
+}
+
+func printMap(route: Route, cheat: Cheat? = nil, better: Route? = nil) {
     let visited = Set(route.locations)
     let betterVisitied = Set(better?.locations ?? [])
 
     for y in (0..<map.height) {
         for x in 0..<map.width {
             let loc = Location2D(x: x, y: y)
-            if loc == cheat0 {
-                print("1️⃣", terminator: "")
-            } else if loc == cheat1 {
-                print("2️⃣", terminator: "")
-            } else if loc == cheat2 {
-                print("3️⃣", terminator: "")
+            if loc == cheat?.start {
+                print("❎", terminator: "")
             } else if betterVisitied.contains(loc) {
                 print("🟢", terminator: "")
             } else if visited.contains(loc) {
@@ -165,12 +167,6 @@ func combinations(_ dir1: Location2D, _ dir2: Location2D) -> [[Location2D]] {
 
 let cheatOffsets: [[Location2D]] = combinations(.up, .right) + combinations(.up, .left) + combinations(.down, .right) + combinations(.down, .left)
 
-// The first location must be a wall, but the second might be an empty spot, and if so, that bit of cheat wasn't needed and this is equivalent to any other 1 step cheat that used cheat0
-struct Cheat : Hashable {
-    var cheat0: Location2D
-    var cheat1: Location2D?
-}
-
 var cheatsBySavings = [Int:[Cheat]]()
 
 var attemptedCheats = Set<Cheat>()
@@ -179,6 +175,58 @@ for pico in 0..<route.locations.count - 1 {
 
     let current = route.locations[pico]
 
+    for dir1 in Location2D.cardinalDirections {
+        // Find all adjacent walls
+        let candidate1 = current + dir1
+        if map[candidate1] != .wall {
+            continue
+        }
+        for dir2 in Location2D.cardinalDirections {
+            if dir2 == -dir1 {
+                continue
+            }
+            let candidate2 = candidate1 + dir2
+            if map[candidate2] != .empty {
+                continue
+            }
+
+            let cheat = Cheat(start: candidate1, end: candidate2)
+            if attemptedCheats.contains(cheat) {
+                continue
+            }
+            attemptedCheats.insert(cheat)
+
+
+            // Try this cheat
+            map[cheat.start] = .empty
+
+            // Make a new route to the end from the current spot, given the modified map. Has to be a route since the map is *more* permissive than it was
+            let candidate = findBestRoute(from: current, to: end)!
+
+            // Require the new route to have taken the give path
+            assert(candidate.locations[0] == current)
+//            if candidate.locations.count < 2 || candidate.locations[1] != cheat.start {
+//                continue
+//            }
+
+            if pico + candidate.steps < route.steps {
+                //print("Better: \(pico + candidate.steps) ")
+                //printMap(route: route, cheat0: loc0, cheat1: loc1, cheat2: loc2, better: candidate)
+
+                let savings = route.steps - (pico + candidate.steps)
+                if savings == 2 {
+                    print("cheat \(cheat)")
+                    printMap(route: route, cheat: cheat, better: candidate)
+                }
+                cheatsBySavings[savings] = (cheatsBySavings[savings] ?? []) + [cheat]
+            }
+
+            // Restore the map
+            map[cheat.start] = .wall
+        }
+    }
+
+    /*
     for cheatOffset in cheatOffsets {
         // Make sure at least two of the cheat steps are on the map and store the original values
         let loc0 = current + cheatOffset[0]
@@ -210,6 +258,8 @@ for pico in 0..<route.locations.count - 1 {
 
         // Make a new route to the end from the current spot, given the modified map. Has to be a route since the map is *more* permissive than it was
         let candidate = findBestRoute(from: current, to: end)!
+        assert(candidate.locations[0] == current)
+
 
         if pico + candidate.steps < route.steps {
             //print("Better: \(pico + candidate.steps) ")
@@ -230,6 +280,7 @@ for pico in 0..<route.locations.count - 1 {
             map[loc1] = cheat1
         }
     }
+     */
 }
 
 cheatsBySavings.keys.sorted().forEach { key in
