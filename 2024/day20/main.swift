@@ -37,8 +37,6 @@ class Route {
     let location: Location2D
     let steps: Int
 
-//    var locations: [Location2D]
-
     var superseded: Bool = false
 
     init(previous: Route?, location: Location2D) {
@@ -66,9 +64,6 @@ class Route {
             }
         }
     }
-//    var location: Location2D {
-//        return locations.last!
-//    }
 }
 
 func printMap(route: Route, cheat: Location2D? = nil, better: Route? = nil) {
@@ -150,37 +145,14 @@ func findBestRoute(from start: Location2D, to end: Location2D) -> Route? {
     }
 }
 
+let startTime = Date.timeIntervalSinceReferenceDate
+
 guard let route = findBestRoute(from: start, to: end) else {
     print("No route")
     exit(0)
 }
 
 printMap(route: route)
-
-// Try each possible cheat location along the original best path and then see if we can make a better path
-
-// Each cheat is three locations. The first one must be a wall. The second may be a wall or empty, and the third must be empty (if used, which it isn't if second is empty). That is, a cheat only needs to be one wall.
-
-func combinations(_ dir1: Location2D, _ dir2: Location2D) -> [[Location2D]] {
-    var result: [[Location2D]] = []
-
-    for i in 0..<8 {
-        // Make the output be the cummulative offset from the start
-        let offset1 = ((i & 1) == 0) ? dir1 : dir2
-        let offset2 = ((i & 2) == 0) ? dir1 : dir2
-        let offset3 = ((i & 4) == 0) ? dir1 : dir2
-
-        result.append([
-            offset1,
-            offset1 + offset2,
-            offset1 + offset2 + offset3
-        ])
-    }
-
-    return result
-}
-
-let cheatOffsets: [[Location2D]] = combinations(.up, .right) + combinations(.up, .left) + combinations(.down, .right) + combinations(.down, .left)
 
 var cheatsBySavings = [Int:[Location2D]]()
 
@@ -189,7 +161,13 @@ var attemptedCheats = Set<Location2D>()
 var count = 0
 
 var originalRouteLocations = route.allLocations
+print("Original picos \(originalRouteLocations.count)")
+
 for pico in 0..<originalRouteLocations.count - 1 {
+
+    if pico % 100 == 0 {
+        print("... \(pico)")
+    }
 
     let current = originalRouteLocations[pico]
 
@@ -229,6 +207,7 @@ for pico in 0..<originalRouteLocations.count - 1 {
                 if savings >= 100 {
                     print("\(cheat)")
                     count += 1
+                    //printMap(route: route, cheat: cheat, better: candidate)
                 }
                 cheatsBySavings[savings] = (cheatsBySavings[savings] ?? []) + [cheat]
             }
@@ -244,3 +223,7 @@ cheatsBySavings.keys.sorted().forEach { key in
 }
 
 print("\(count)")
+assert(count == 1197)
+
+let endTime = Date.timeIntervalSinceReferenceDate
+print("duraction \(endTime - startTime)")
