@@ -50,20 +50,14 @@ class Route {
     }
 }
 
-// The first location must be a wall, and the second a an empty spot
-struct Cheat : Hashable {
-    var start: Location2D
-    var end: Location2D
-}
-
-func printMap(route: Route, cheat: Cheat? = nil, better: Route? = nil) {
+func printMap(route: Route, cheat: Location2D? = nil, better: Route? = nil) {
     let visited = Set(route.locations)
     let betterVisitied = Set(better?.locations ?? [])
 
     for y in (0..<map.height) {
         for x in 0..<map.width {
             let loc = Location2D(x: x, y: y)
-            if loc == cheat?.start {
+            if loc == cheat {
                 print("❎", terminator: "")
             } else if betterVisitied.contains(loc) {
                 print("🟢", terminator: "")
@@ -167,9 +161,9 @@ func combinations(_ dir1: Location2D, _ dir2: Location2D) -> [[Location2D]] {
 
 let cheatOffsets: [[Location2D]] = combinations(.up, .right) + combinations(.up, .left) + combinations(.down, .right) + combinations(.down, .left)
 
-var cheatsBySavings = [Int:[Cheat]]()
+var cheatsBySavings = [Int:[Location2D]]()
 
-var attemptedCheats = Set<Cheat>()
+var attemptedCheats = Set<Location2D>()
 
 for pico in 0..<route.locations.count - 1 {
 
@@ -190,7 +184,7 @@ for pico in 0..<route.locations.count - 1 {
                 continue
             }
 
-            let cheat = Cheat(start: candidate1, end: candidate2)
+            let cheat = candidate1
             if attemptedCheats.contains(cheat) {
                 continue
             }
@@ -198,7 +192,7 @@ for pico in 0..<route.locations.count - 1 {
 
 
             // Try this cheat
-            map[cheat.start] = .empty
+            map[cheat] = .empty
 
             // Make a new route to the end from the current spot, given the modified map. Has to be a route since the map is *more* permissive than it was
             let candidate = findBestRoute(from: current, to: end)!
@@ -222,7 +216,7 @@ for pico in 0..<route.locations.count - 1 {
             }
 
             // Restore the map
-            map[cheat.start] = .wall
+            map[cheat] = .wall
         }
     }
 
