@@ -66,17 +66,18 @@ class Route {
     }
 }
 
-func printMap(route: Route, cheat: Location2D? = nil, better: Route? = nil) {
+func printMap(route: Route, current: Location2D? = nil, cheat: Location2D? = nil, resume: Location2D? = nil) {
     let visited = Set(route.allLocations)
-    let betterVisitied = Set(better?.allLocations ?? [])
 
     for y in (0..<map.height) {
         for x in 0..<map.width {
             let loc = Location2D(x: x, y: y)
             if loc == cheat {
                 print("❎", terminator: "")
-            } else if betterVisitied.contains(loc) {
-                print("🟢", terminator: "")
+            } else if loc == current {
+                print("🟥", terminator: "")
+            } else if loc == resume {
+                print("🟩", terminator: "")
             } else if visited.contains(loc) {
                 print("🟠", terminator: "")
             } else {
@@ -156,19 +157,19 @@ printMap(route: route)
 
 var cheatsBySavings = [Int:[Location2D]]()
 
-var attemptedCheats = Set<Location2D>()
-
 var count = 0
 
 var originalRouteLocations = route.allLocations
+
+var bestStepsByLocation = [Location2D:Int]()
+for pico in 0..<originalRouteLocations.count {
+    bestStepsByLocation[originalRouteLocations[pico]] = pico
+}
+
+
 print("Original picos \(originalRouteLocations.count)")
 
 for pico in 0..<originalRouteLocations.count - 1 {
-
-    if pico % 100 == 0 {
-        print("... \(pico)")
-    }
-
     let current = originalRouteLocations[pico]
 
     for dir1 in Location2D.cardinalDirections {
@@ -187,43 +188,31 @@ for pico in 0..<originalRouteLocations.count - 1 {
             }
 
             let cheat = candidate1
-            if attemptedCheats.contains(cheat) {
-                continue
-            }
-            attemptedCheats.insert(cheat)
 
+            // Check if the candidate is somewhere else on the best route
+            guard let candidateSteps = bestStepsByLocation[candidate2] else { continue }
 
-            // Try this cheat
-            map[cheat] = .empty
+            guard candidateSteps > pico else { continue } // Should be further along on the path, not backwards
 
-            // Make a new route to the end from the current spot, given the modified map. Has to be a route since the map is *more* permissive than it was
-            let candidate = findBestRoute(from: current, to: end)!
-
-            if pico + candidate.steps < route.steps {
-                //print("Better: \(pico + candidate.steps) ")
-                //printMap(route: route, cheat0: loc0, cheat1: loc1, cheat2: loc2, better: candidate)
-
-                let savings = route.steps - (pico + candidate.steps)
+            // The length of the new path is how far we've already gone along the original path, plus one to step into the cheat location and one to step to the resume location, plus the number of steps left after the candidate
+            let cheatSteps = pico + 2 + (route.steps - candidateSteps)
+            if cheatSteps < route.steps {
+                let savings = route.steps - cheatSteps
                 if savings >= 100 {
-                    print("\(cheat)")
                     count += 1
-                    //printMap(route: route, cheat: cheat, better: candidate)
                 }
                 cheatsBySavings[savings] = (cheatsBySavings[savings] ?? []) + [cheat]
             }
-
-            // Restore the map
-            map[cheat] = .wall
         }
     }
 }
 
-cheatsBySavings.keys.sorted().forEach { key in
-    print("\(cheatsBySavings[key]!.count) that save \(key)")
-}
+//cheatsBySavings.keys.sorted().forEach { key in
+//    print("\(cheatsBySavings[key]!.count) that save \(key)")
+//}
 
 print("\(count)")
 assert(count == 1197)
 
 let endTime = Date.timeIntervalSinceReferenceDate
-print("duraction \(endTime - startTime)")
+print("duration \(endTime - startTime)")
