@@ -42,11 +42,15 @@ enum Operation : Comparable {
         case .CONSTANT:
             break
         case .AND(let a, let b), .OR(let a, let b), .XOR(let a, let b):
-            inputs.insert(a)
-            inputs.insert(b)
-
-            gates[a]!.addInputs(&inputs, gates: gates)
-            gates[b]!.addInputs(&inputs, gates: gates)
+            // This is used for cycle detection
+            if !inputs.contains(a) {
+                inputs.insert(a)
+                gates[a]!.addInputs(&inputs, gates: gates)
+            }
+            if !inputs.contains(b) {
+                inputs.insert(b)
+                gates[b]!.addInputs(&inputs, gates: gates)
+            }
         }
     }
 
@@ -98,6 +102,13 @@ class Gate : Comparable {
 
     var value: Int?
 
+    // Gate swaps can introduce cycles
+    func hasLoop(gates: [String:Gate]) -> Bool {
+        var inputs = Set<String>()
+        addInputs(&inputs, gates: gates)
+        return inputs.contains(name)
+    }
+
     func evaluate(gates: [String:Gate]) -> Int {
         if let value = value {
             return value
@@ -146,7 +157,7 @@ class Gate : Comparable {
         let opName: String
 
         switch operation {
-        case .CONSTANT(let int):
+        case .CONSTANT:
             return
         case .AND(let string, let string2):
             a = string
@@ -334,7 +345,7 @@ xNames.forEach { gates[$0]!.operation = .CONSTANT(0) }
 yNames.forEach { gates[$0]!.operation = .CONSTANT(0) }
 
 func countErrors(x: Int, y: Int) -> Int {
-    print("### x \(x), y \(y)")
+    //print("### x \(x), y \(y)")
 
     var errors = 0
 
@@ -351,12 +362,12 @@ func countErrors(x: Int, y: Int) -> Int {
                 let z = gates[zNames[zIdx]]!.evaluate(gates: gates)
                 if zIdx == idx + 1 {
                     if z != 1 {
-                        print("  idx \(idx), z\(zIdx) \(z)")
+                        //print("  idx \(idx), z\(zIdx) \(z)")
                         errors += 1
                     }
                 } else {
                     if z != 0 {
-                        print("  idx \(idx), z\(zIdx) \(z)")
+                        //print("  idx \(idx), z\(zIdx) \(z)")
                         errors += 1
                     }
                 }
@@ -368,12 +379,12 @@ func countErrors(x: Int, y: Int) -> Int {
                 let z = gates[zNames[zIdx]]!.evaluate(gates: gates)
                 if zIdx == idx {
                     if z != 1 {
-                        print("  idx \(idx), z\(zIdx) \(z)")
+                        //print("  idx \(idx), z\(zIdx) \(z)")
                         errors += 1
                     }
                 } else {
                     if z != 0 {
-                        print("  idx \(idx), z\(zIdx) \(z)")
+                        //print("  idx \(idx), z\(zIdx) \(z)")
                         errors += 1
                     }
                 }
@@ -388,6 +399,45 @@ func countErrors(x: Int, y: Int) -> Int {
     return errors
 }
 
-print("1/0 \(countErrors(x: 1, y: 0))")
-print("0/1 \(countErrors(x: 0, y: 1))")
-print("1/1 \(countErrors(x: 1, y: 1))")
+func totalErrors() -> Int {
+    let a = countErrors(x: 1, y: 0)
+    let b = countErrors(x: 0, y: 1)
+    let c = countErrors(x: 1, y: 1)
+
+//    print("1/0 \(a)")
+//    print("0/1 \(b)")
+//    print("1/1 \(c)")
+
+    return a + b + c
+}
+
+var bestErrors = totalErrors()
+
+// Try all pairs of gates and swap them. If the error count increases swap them back.
+let allGates = Array(gates.values)
+for aIdx in 0..<allGates.count-1 {
+    print("... \(aIdx)")
+    for bIdx in aIdx+1..<allGates.count {
+        let a = allGates[aIdx]
+        let b = allGates[bIdx]
+
+        swap(&a.operation, &b.operation)
+
+        if !allGates.allSatisfy({ !$0.hasLoop(gates: gates) }) {
+            // Bad swap
+            //print("  bad")
+            swap(&a.operation, &b.operation)
+            continue
+        }
+
+        //print("trying \(a.name) vs \(b.name)")
+        let errors = totalErrors()
+        if errors >= bestErrors {
+            //print("  more errors \(errors)")
+            swap(&a.operation, &b.operation)
+        } else {
+            bestErrors = errors
+            print("swapped \(a.name) and \(b.name) with errors \(errors)")
+        }
+    }
+}
