@@ -439,7 +439,7 @@ func allPairs(_ input: Array<String>) -> [(String, String)] {
     var result = [(String,String)]()
     let count = input.count
     for aIdx in 0..<count-1 {
-        for bIdx in 1..<count {
+        for bIdx in aIdx+1..<count {
             result.append((input[aIdx], input[bIdx]))
         }
     }
@@ -453,35 +453,31 @@ print("\(eights.count) combinations")
 for eight in eights {
     print("-- \(eight)")
 
-    let permutations = eight.permutations(ofCount: 8)
-    print("\(permutations.count) permutations")
-    for ordering in permutations {
-        //print("## \(Array(ordering))")
-        let pairs = ordering.adjacentPairs()
+    let pairs = allPairs(eight)
+    //print(pairs)
 
-        // Make the swaps
-        for pair in pairs {
-            //print("  \(pair.0),\(pair.1)")
-            let a = gates[pair.0]!
-            let b = gates[pair.1]!
+    // Make the swaps
+    for pair in pairs {
+        //print("  \(pair.0),\(pair.1)")
+        let a = gates[pair.0]!
+        let b = gates[pair.1]!
 
-            swap(&a.operation, &b.operation)
-        }
+        swap(&a.operation, &b.operation)
+    }
 
-        let swapErrors = allErrors()
-        //print("  \(swapErrors.count)")
-        if swapErrors.isEmpty {
-            print("!! \(Array(ordering))")
-            exit(0)
-        }
+    let swapErrors = allErrors()
+    print("  \(swapErrors.count)")
+    if swapErrors.isEmpty {
+        print("!! \(Array(pairs))")
+        exit(0)
+    }
 
-        // Revert the swaps
-        for pair in pairs {
-            let a = gates[pair.0]!
-            let b = gates[pair.1]!
+    // Revert the swaps
+    for pair in pairs {
+        let a = gates[pair.0]!
+        let b = gates[pair.1]!
 
-            swap(&a.operation, &b.operation)
-        }
+        swap(&a.operation, &b.operation)
     }
 }
 
