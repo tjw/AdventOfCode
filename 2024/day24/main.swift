@@ -414,15 +414,22 @@ func totalErrors() -> Int {
 var bestErrors = totalErrors()
 
 // Try all pairs of gates and swap them. If the error count increases swap them back.
-let allGates = Array(gates.values)
+let allGates = Array(gates.values.sorted())
 for aIdx in 0..<allGates.count-1 {
     print("... \(aIdx)")
+    let a = allGates[aIdx]
+
+    // Track which bIdx produces the best error reduction.
+    var bestB: Int = 0
+    var bestBErrors = bestErrors
+
     for bIdx in aIdx+1..<allGates.count {
-        let a = allGates[aIdx]
         let b = allGates[bIdx]
 
+        // Speculative swap
         swap(&a.operation, &b.operation)
 
+        // TODO: Could also check if a depends on b or b depends on a
         if !allGates.allSatisfy({ !$0.hasLoop(gates: gates) }) {
             // Bad swap
             //print("  bad")
@@ -432,12 +439,24 @@ for aIdx in 0..<allGates.count-1 {
 
         //print("trying \(a.name) vs \(b.name)")
         let errors = totalErrors()
-        if errors >= bestErrors {
-            //print("  more errors \(errors)")
-            swap(&a.operation, &b.operation)
-        } else {
-            bestErrors = errors
-            print("swapped \(a.name) and \(b.name) with errors \(errors)")
+
+        if errors < bestBErrors {
+            bestB = bIdx
+            bestBErrors = errors
         }
+
+        // Swap back to continue trying other b gates
+        swap(&a.operation, &b.operation)
+    }
+
+    if bestBErrors < bestErrors {
+        //print("  more errors \(errors)")
+        assert(bestB != 0)
+
+        // Commit to this swap
+        bestErrors = bestBErrors
+        let b = allGates[bestB]
+        swap(&a.operation, &b.operation)
+        print("swapped \(a.name) and \(b.name) with errors \(bestBErrors)")
     }
 }
