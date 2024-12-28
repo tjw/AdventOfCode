@@ -25,6 +25,7 @@
 		343734822B1FE460004CD750 /* UtilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343734812B1FE460004CD750 /* UtilityTests.swift */; };
 		343734862B1FE468004CD750 /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343734792B1FE342004CD750 /* Range.swift */; };
 		343734882B1FE47F004CD750 /* RangeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343734872B1FE47F004CD750 /* RangeTests.swift */; };
+		3457E7CB2D2092CB007B28CB /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 3457E7CA2D2092CB007B28CB /* Algorithms */; };
 		346730212D0FE9C600E6CC3B /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34072D902932F6C80030EB66 /* Input.swift */; };
 		346730242D0FEC3000E6CC3B /* Location2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF30D12947025300094BD4 /* Location2D.swift */; };
 		346730252D0FEC3000E6CC3B /* GridMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CF30D42947040400094BD4 /* GridMap.swift */; };
@@ -519,6 +520,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3457E7CB2D2092CB007B28CB /* Algorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -595,6 +597,7 @@
 				34A788522D1A49A9002F9266 /* day22 */,
 				34A7889F2D1D0462002F9266 /* day23 */,
 				34A788C72D1D190E002F9266 /* day24 */,
+				3457E7C92D2092CB007B28CB /* Frameworks */,
 				34072D7B29319D800030EB66 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -671,6 +674,13 @@
 				343734872B1FE47F004CD750 /* RangeTests.swift */,
 			);
 			path = UtilityTests;
+			sourceTree = "<group>";
+		};
+		3457E7C92D2092CB007B28CB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1073,12 +1083,14 @@
 			buildRules = (
 			);
 			dependencies = (
+				3457E7C82D2091E6007B28CB /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				34A788C72D1D190E002F9266 /* day24 */,
 			);
 			name = day24;
 			packageProductDependencies = (
+				3457E7CA2D2092CB007B28CB /* Algorithms */,
 			);
 			productName = day24;
 			productReference = 34A788C62D1D190E002F9266 /* day24 */;
@@ -1613,6 +1625,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3457E7C82D2091E6007B28CB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 3457E7C72D2091E6007B28CB /* Algorithms */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		34072D7F29319D800030EB66 /* Debug */ = {
@@ -2836,6 +2855,19 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3457E7C72D2091E6007B28CB /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34CF3182295070CD00094BD4 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
+		};
+		3457E7CA2D2092CB007B28CB /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34CF3182295070CD00094BD4 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 34072D7229319D800030EB66 /* Project object */;
 }

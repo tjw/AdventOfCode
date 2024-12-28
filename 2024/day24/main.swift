@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Algorithms
 
 // Very similar to 2015 day 7
 
@@ -344,10 +345,11 @@ let zNames = (0..<46).map { String(format: "z%02d", $0) }
 xNames.forEach { gates[$0]!.operation = .CONSTANT(0) }
 yNames.forEach { gates[$0]!.operation = .CONSTANT(0) }
 
-func countErrors(x: Int, y: Int) -> Int {
+// Find all the gates with some sort of error, given these inputs in each bit posisition.
+func collectErrors(x: Int, y: Int) -> Set<String> {
     //print("### x \(x), y \(y)")
 
-    var errors = 0
+    var errors = Set<String>()
 
     for idx in 0..<45 {
         // Set the input bits
@@ -359,16 +361,17 @@ func countErrors(x: Int, y: Int) -> Int {
         if x == 1 && y == 1 {
             // Carry should be at idx+1
             for zIdx in 0..<46 {
-                let z = gates[zNames[zIdx]]!.evaluate(gates: gates)
+                let zName = zNames[zIdx]
+                let z = gates[zName]!.evaluate(gates: gates)
                 if zIdx == idx + 1 {
                     if z != 1 {
                         //print("  idx \(idx), z\(zIdx) \(z)")
-                        errors += 1
+                        errors.insert(zName)
                     }
                 } else {
                     if z != 0 {
                         //print("  idx \(idx), z\(zIdx) \(z)")
-                        errors += 1
+                        errors.insert(zName)
                     }
                 }
             }
@@ -376,16 +379,17 @@ func countErrors(x: Int, y: Int) -> Int {
             // We don't consider x=0 y=0 since there are no operators that can manifest bits out of zeros (no NOT)
             // No carry
             for zIdx in 0..<46 {
-                let z = gates[zNames[zIdx]]!.evaluate(gates: gates)
+                let zName = zNames[zIdx]
+                let z = gates[zName]!.evaluate(gates: gates)
                 if zIdx == idx {
                     if z != 1 {
                         //print("  idx \(idx), z\(zIdx) \(z)")
-                        errors += 1
+                        errors.insert(zName)
                     }
                 } else {
                     if z != 0 {
                         //print("  idx \(idx), z\(zIdx) \(z)")
-                        errors += 1
+                        errors.insert(zName)
                     }
                 }
             }
@@ -399,6 +403,89 @@ func countErrors(x: Int, y: Int) -> Int {
     return errors
 }
 
+func allErrors() -> Set<String> {
+    let a = collectErrors(x: 1, y: 0)
+    let b = collectErrors(x: 0, y: 1)
+    let c = collectErrors(x: 1, y: 1)
+
+    return a.union(b.union(c))
+}
+
+let errors = allErrors()
+print("errors \(errors.sorted())")
+
+func transitiveGates(g: any Sequence<String>) -> Set<String> {
+    var inputs = Set<String>(g)
+    for gate in g {
+        gates[gate]!.addInputs(&inputs, gates: gates)
+    }
+    return inputs
+}
+
+let errorInputs = transitiveGates(g: errors)
+print("errorInputs \(errorInputs.sorted())")
+
+let correctOutputs = Set(zNames).subtracting(errors)
+print("correctOutputs \(correctOutputs.sorted())")
+
+let correctInputs = transitiveGates(g: correctOutputs)
+print("correctInputs \(correctInputs.sorted())")
+
+let possibleMisconnections = errorInputs.subtracting(correctInputs)
+print("possibleMisconnections \(possibleMisconnections.sorted())")
+
+// Probably a way to do this with Swift Algoritms, but not finding it. If I use combinations(ofCount: 2), I get multiple pairs involving the same gate
+func allPairs(_ input: Array<String>) -> [(String, String)] {
+    var result = [(String,String)]()
+    let count = input.count
+    for aIdx in 0..<count-1 {
+        for bIdx in 1..<count {
+            result.append((input[aIdx], input[bIdx]))
+        }
+    }
+    return result
+}
+
+
+// For my input, this produces a list of 10 gates that are involved *only* in errors (assuming that gates involved in always correct input can't be involved in swaps).
+let eights = possibleMisconnections.combinations(ofCount: 8)
+print("\(eights.count) combinations")
+for eight in eights {
+    print("-- \(eight)")
+
+    let permutations = eight.permutations(ofCount: 8)
+    print("\(permutations.count) permutations")
+    for ordering in permutations {
+        //print("## \(Array(ordering))")
+        let pairs = ordering.adjacentPairs()
+
+        // Make the swaps
+        for pair in pairs {
+            //print("  \(pair.0),\(pair.1)")
+            let a = gates[pair.0]!
+            let b = gates[pair.1]!
+
+            swap(&a.operation, &b.operation)
+        }
+
+        let swapErrors = allErrors()
+        //print("  \(swapErrors.count)")
+        if swapErrors.isEmpty {
+            print("!! \(Array(ordering))")
+            exit(0)
+        }
+
+        // Revert the swaps
+        for pair in pairs {
+            let a = gates[pair.0]!
+            let b = gates[pair.1]!
+
+            swap(&a.operation, &b.operation)
+        }
+    }
+}
+
+/*
 func totalErrors() -> Int {
     let a = countErrors(x: 1, y: 0)
     let b = countErrors(x: 0, y: 1)
@@ -460,3 +547,4 @@ for aIdx in 0..<allGates.count-1 {
         print("swapped \(a.name) and \(b.name) with errors \(bestBErrors)")
     }
 }
+*/
