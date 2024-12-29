@@ -64,10 +64,30 @@ enum Operation : Comparable {
             gates[b]!.addConstants(&constants, gates: gates)
         }
     }
+
+    func updateOperationNames(_ nameMap: [String:String]) -> Operation {
+        func newName(_ name: String) -> String {
+            if let mapped = nameMap[name] {
+                return mapped
+            }
+            return name
+        }
+
+        switch self {
+        case .CONSTANT:
+            return self
+        case .AND(let a, let b):
+            return .AND(newName(a), newName(b))
+        case .OR(let a, let b):
+            return .OR(newName(a), newName(b))
+        case .XOR(let a, let b):
+            return .XOR(newName(a), newName(b))
+        }
+    }
 }
 
 class Gate : Comparable {
-    let name: String
+    var name: String
     var operation: Operation
 
     static let binaryEx = /([a-z0-9]+) (AND|OR|XOR) ([a-z0-9]+) -> ([a-z0-9]+)/
@@ -132,6 +152,10 @@ class Gate : Comparable {
         }
     }
 
+    func updateOperationNames(_ nameMap: [String:String]) {
+        operation = operation.updateOperationNames(nameMap)
+    }
+
     static func < (lhs: Gate, rhs: Gate) -> Bool {
         if lhs.name < rhs.name {
             return true
@@ -157,6 +181,23 @@ class Gate : Comparable {
         let a, b: String
         let opName: String
 
+        // color names from https://graphviz.org/doc/info/colors.html
+
+        let opColor: String
+
+        func nameColor(_ name: String) -> String {
+            if name.hasPrefix("S") {
+                return "darkslategray1"
+            }
+            if name.hasPrefix("C") {
+                return "darkturquoise"
+            }
+            if name.hasPrefix("z") {
+                return "pink"
+            }
+            return "none"
+        }
+
         switch operation {
         case .CONSTANT:
             return
@@ -164,19 +205,26 @@ class Gate : Comparable {
             a = string
             b = string2
             opName = "AND"
+            opColor = "none"
         case .OR(let string, let string2):
             a = string
             b = string2
             opName = "OR"
+            opColor = "gold"
         case .XOR(let string, let string2):
             a = string
             b = string2
             opName = "XOR"
+            opColor = "aquamarine"
         }
+
+        print("\(a) [fillcolor=\(nameColor(a))];")
+        print("\(b) [fillcolor=\(nameColor(b))];")
+        print("\(name) [fillcolor=\(nameColor(name))];")
 
         print("\(a) -> \(name)_op;")
         print("\(b) -> \(name)_op;")
-        print("\(name)_op [label=\"\(opName)\"];")
+        print("\(name)_op [label=\"\(opName)\" fillcolor=\(opColor)];")
         print("\(name)_op -> \(name);")
     }
 }
@@ -205,11 +253,115 @@ sections[1].forEach { line in
 
 let names = gates.keys.compactMap { $0.hasPrefix("z") ? $0 : nil } .sorted()
 
-//print("digraph graphname {")
-//for gate in gates.values.sorted() {
-//    gate.printDot()
-//}
-//print("}")
+func printDot() {
+    print("digraph graphname {")
+
+//    print("subgraph { rank = same;")
+//    for name in names {
+//        print("  \(name);")
+//    }
+//    print("}")
+
+    for gate in gates.values.sorted() {
+        gate.printDot()
+    }
+    print("}")
+}
+
+/*
+ Eyeballing after looking at the graph layout in OmniGraffle
+
+ S9 <--> C9 (whatever their unsimplified names are
+ hbs <--> kfp
+
+ x18 AND y18 -> z18 (aka C18) <--> dhq ???
+
+ z22 <--> pdg
+
+ z27 <--> jcp
+
+
+ */
+
+// Manually do swaps
+do {
+    var a, b: Gate
+
+    a = gates["hbs"]!
+    b = gates["kfp"]!
+    swap(&a.operation, &b.operation)
+
+    a = gates["z18"]!
+    b = gates["dhq"]!
+    swap(&a.operation, &b.operation)
+
+    a = gates["z22"]!
+    b = gates["pdg"]!
+    swap(&a.operation, &b.operation)
+
+    a = gates["z27"]!
+    b = gates["jcp"]!
+    swap(&a.operation, &b.operation)
+
+}
+
+print(["hbs", "kfp", "z18", "dhq", "z22", "pdg", "z27", "jcp"].sorted().joined(separator: ","))
+
+// Looking at the output, all the xN and yN are combined with an AND (to produce the carry) and XOR to produce the sum. None of these look wrong, so simplify the graph
+do {
+    var sums = [String:Gate]()
+    var carries = [String:Gate]()
+
+    gates.forEach { _, gate in
+        if case let .XOR(a, b) = gate.operation {
+            if a.hasPrefix("x") && b.hasPrefix("y") {
+                let value = Int(a.dropFirst())!
+                assert(value == Int(b.dropFirst())!) // Shouldn't be any cross-bit operations
+
+                let name = String(format: "S%02d", value)
+                sums[name] = gate
+            }
+        } else if case let .AND(a, b) = gate.operation {
+            if a.hasPrefix("x") && b.hasPrefix("y") {
+                let value = Int(a.dropFirst())!
+                assert(value == Int(b.dropFirst())!) // Shouldn't be any cross-bit operations
+
+                let name = String(format: "C%02d", value)
+                carries[name] = gate
+            }
+        }
+    }
+
+    // Remove all the xN and yN
+    for idx in 0..<45 {
+        gates.removeValue(forKey: String(format: "x%02d", idx))
+        gates.removeValue(forKey: String(format: "y%02d", idx))
+    }
+
+    // Build a map of old output names to the new sum/carry names
+    var nameMap = [String:String]()
+    sums.forEach { name, gate in nameMap[gate.name] = name }
+    carries.forEach { name, gate in nameMap[gate.name] = name }
+
+    // Update operations that referred to the old output names to refer to the new sum/carry names
+    gates.forEach { _, gate in
+        gate.updateOperationNames(nameMap)
+    }
+
+    // Update the sum/carry output gates (not preserving the values for pt1 for now)
+    sums.forEach { name, gate in
+        gate.name = name
+        gate.operation = .CONSTANT(0)
+    }
+    carries.forEach { name, gate in
+        gate.name = name
+        gate.operation = .CONSTANT(0)
+    }
+}
+
+printDot()
+
+exit(0)
 
 //do {
 //    var result: Int = 0
@@ -414,6 +566,7 @@ func allErrors() -> Set<String> {
 let errors = allErrors()
 print("errors \(errors.sorted())")
 
+/*
 func transitiveGates(g: any Sequence<String>) -> Set<String> {
     var inputs = Set<String>(g)
     for gate in g {
@@ -480,6 +633,8 @@ for eight in eights {
         swap(&a.operation, &b.operation)
     }
 }
+*/
+
 
 /*
 func totalErrors() -> Int {
